@@ -10,7 +10,7 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ navigate }: AdminDashboardProps) {
   const { weddingData, setWeddingData, guests, siteSettings, currentUser, logout } = useWedding();
-  const [activeTab, setActiveTab] = useState<'overview' | 'couple' | 'gallery' | 'event' | 'content' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'couple' | 'event' | 'content' | 'settings'>('overview');
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(weddingData);
 
@@ -85,7 +85,6 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
           {[
             { id: 'overview', label: 'Overview' },
             { id: 'couple', label: 'Data Mempelai' },
-            { id: 'gallery', label: '📸 Galeri Foto' },
             { id: 'event', label: 'Data Acara' },
             { id: 'content', label: 'Konten' },
             { id: 'settings', label: '⚙️ Bahasa & Agama' },
@@ -205,6 +204,9 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
                 </a>
               </div>
             </div>
+
+            {/* Gallery Manager */}
+            <GalleryManager weddingData={weddingData} setWeddingData={setWeddingData} />
 
             {/* Wedding Summary */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -451,11 +453,6 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
               </div>
             </div>
           </div>
-        )}
-
-        {/* Gallery Tab */}
-        {activeTab === 'gallery' && (
-          <GalleryManager weddingData={weddingData} setWeddingData={setWeddingData} />
         )}
 
         {/* Event Data Tab */}
