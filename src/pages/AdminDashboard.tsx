@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useWedding, WeddingData, GalleryPhoto } from '../context/WeddingContext';
 import { getReligiousContent } from '../utils/translations';
-import { compressImage, PROFILE_OPTIONS, GALLERY_OPTIONS, getDataUrlSize, formatFileSize } from '../utils/imageCompressor';
+import { fileToBase64, getDataUrlSize, formatFileSize } from '../utils/imageCompressor';
 
 interface AdminDashboardProps {
   navigate: (path: string) => void;
@@ -789,19 +789,19 @@ function PhotosTab({ weddingData, setWeddingData }: { weddingData: WeddingData; 
     if (!file) return;
 
     if (file.size > 10 * 1024 * 1024) {
-      showMessage('error', 'Ukuran file terlalu besar! Maksimal 10MB sebelum kompresi.');
+      showMessage('error', 'Ukuran file terlalu besar! Maksimal 10MB.');
       return;
     }
 
     setUploading(type);
     try {
-      const compressed = await compressImage(file, PROFILE_OPTIONS);
-      const size = getDataUrlSize(compressed);
+      const base64 = await fileToBase64(file);
+      const size = getDataUrlSize(base64);
       
       if (type === 'groom') {
-        setWeddingData({ ...weddingData, groomPhoto: compressed });
+        setWeddingData({ ...weddingData, groomPhoto: base64 });
       } else {
-        setWeddingData({ ...weddingData, bridePhoto: compressed });
+        setWeddingData({ ...weddingData, bridePhoto: base64 });
       }
       
       showMessage('success', `Foto ${type === 'groom' ? 'mempelai pria' : 'mempelai wanita'} berhasil diupload! (${formatFileSize(size)})`);
@@ -827,10 +827,10 @@ function PhotosTab({ weddingData, setWeddingData }: { weddingData: WeddingData; 
           continue; // Skip file yang terlalu besar
         }
         
-        const compressed = await compressImage(file, GALLERY_OPTIONS);
+        const base64 = await fileToBase64(file);
         newPhotos.push({
           id: Date.now().toString() + i,
-          dataUrl: compressed,
+          dataUrl: base64,
           caption: '',
           createdAt: new Date().toISOString(),
         });
@@ -908,24 +908,19 @@ function PhotosTab({ weddingData, setWeddingData }: { weddingData: WeddingData; 
                 </div>
               )}
             </div>
-            <label className="cursor-pointer">
-              <input
-                id="groom-photo-input"
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleProfileUpload(e, 'groom')}
-                className="hidden"
-              />
-              <span className={`inline-block px-4 py-2 bg-[#2d4a3e] text-white rounded-lg text-sm hover:bg-[#1a3a2e] transition-colors ${uploading === 'groom' ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                {uploading === 'groom' ? 'Mengupload...' : weddingData.groomPhoto ? 'Ganti Foto' : 'Upload Foto'}
-              </span>
-            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleProfileUpload(e, 'groom')}
+              className="block mx-auto mb-2 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2d4a3e] file:text-white hover:file:bg-[#1a3a2e] file:cursor-pointer"
+              disabled={uploading === 'groom'}
+            />
             {weddingData.groomPhoto && (
               <button
                 onClick={() => removeProfilePhoto('groom')}
-                className="ml-2 px-4 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 transition-colors"
+                className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 transition-colors"
               >
-                Hapus
+                Hapus Foto
               </button>
             )}
           </div>
@@ -944,24 +939,19 @@ function PhotosTab({ weddingData, setWeddingData }: { weddingData: WeddingData; 
                 </div>
               )}
             </div>
-            <label className="cursor-pointer">
-              <input
-                id="bride-photo-input"
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleProfileUpload(e, 'bride')}
-                className="hidden"
-              />
-              <span className={`inline-block px-4 py-2 bg-[#2d4a3e] text-white rounded-lg text-sm hover:bg-[#1a3a2e] transition-colors ${uploading === 'bride' ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                {uploading === 'bride' ? 'Mengupload...' : weddingData.bridePhoto ? 'Ganti Foto' : 'Upload Foto'}
-              </span>
-            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleProfileUpload(e, 'bride')}
+              className="block mx-auto mb-2 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2d4a3e] file:text-white hover:file:bg-[#1a3a2e] file:cursor-pointer"
+              disabled={uploading === 'bride'}
+            />
             {weddingData.bridePhoto && (
               <button
                 onClick={() => removeProfilePhoto('bride')}
-                className="ml-2 px-4 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 transition-colors"
+                className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 transition-colors"
               >
-                Hapus
+                Hapus Foto
               </button>
             )}
           </div>
@@ -981,35 +971,14 @@ function PhotosTab({ weddingData, setWeddingData }: { weddingData: WeddingData; 
         </p>
 
         {/* Upload Button */}
-        <label className={`inline-block mb-6 ${uploading === 'gallery' ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
-          <input
-            id="gallery-photo-input"
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleGalleryUpload}
-            className="hidden"
-            disabled={uploading === 'gallery'}
-          />
-          <span className="px-6 py-3 bg-[#2d4a3e] text-white rounded-lg text-sm hover:bg-[#1a3a2e] transition-colors flex items-center gap-2">
-            {uploading === 'gallery' ? (
-              <>
-                <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Mengupload...
-              </>
-            ) : (
-              <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                Upload Foto Galeri (Bisa Multiple)
-              </>
-            )}
-          </span>
-        </label>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleGalleryUpload}
+          className="block mb-6 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2d4a3e] file:text-white hover:file:bg-[#1a3a2e] file:cursor-pointer"
+          disabled={uploading === 'gallery'}
+        />
 
         {/* Gallery Grid */}
         {weddingData.galleryPhotos.length > 0 ? (
