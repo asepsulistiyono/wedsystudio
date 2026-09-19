@@ -97,6 +97,8 @@ interface WeddingContextType {
   currentUser: CurrentUser | null;
   login: (username: string, password: string) => { success: boolean; role?: 'admin' | 'superadmin'; message?: string };
   logout: () => void;
+  resetAdminPassword: () => void;
+  deleteAdmin: () => void;
 }
 
 const defaultWeddingData: WeddingData = {
@@ -236,14 +238,32 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
     }
   });
 
-  const adminCredentials: AdminCredentials = {
-    username: 'admin',
-    password: 'admin123',
-  };
+  const [adminCredentials, setAdminCredentials] = useState<AdminCredentials>(() => {
+    const saved = localStorage.getItem('adminCredentials');
+    return saved ? JSON.parse(saved) : {
+      username: 'admin',
+      password: 'admin123',
+    };
+  });
 
   const superAdminCredentials: AdminCredentials = {
     username: 'superadmin',
     password: 'super123',
+  };
+
+  const updateAdminCredentials = (credentials: AdminCredentials) => {
+    setAdminCredentials(credentials);
+    localStorage.setItem('adminCredentials', JSON.stringify(credentials));
+  };
+
+  const resetAdminPassword = () => {
+    const newCredentials = { ...adminCredentials, password: 'admin123' };
+    updateAdminCredentials(newCredentials);
+  };
+
+  const deleteAdmin = () => {
+    localStorage.removeItem('adminCredentials');
+    setAdminCredentials({ username: '', password: '' });
   };
 
   const [adminContact, setAdminContact] = useState<AdminContact>(() => {
@@ -397,6 +417,8 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh
         currentUser,
         login,
         logout,
+        resetAdminPassword,
+        deleteAdmin,
       }}
     >
       {children}
