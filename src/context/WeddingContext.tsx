@@ -61,6 +61,11 @@ export interface AdminContact {
   message: string;
 }
 
+export interface CurrentUser {
+  username: string;
+  role: 'admin' | 'superadmin';
+}
+
 interface WeddingContextType {
   weddingData: WeddingData;
   setWeddingData: (data: WeddingData) => void;
@@ -77,6 +82,9 @@ interface WeddingContextType {
   superAdminCredentials: AdminCredentials;
   adminContact: AdminContact;
   setAdminContact: (contact: AdminContact) => void;
+  currentUser: CurrentUser | null;
+  login: (username: string, password: string) => { success: boolean; role?: 'admin' | 'superadmin'; message?: string };
+  logout: () => void;
 }
 
 const defaultWeddingData: WeddingData = {
@@ -216,6 +224,33 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('adminContact', JSON.stringify(contact));
   };
 
+  // Authentication state
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(() => {
+    const saved = sessionStorage.getItem('currentUser');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const login = (username: string, password: string): { success: boolean; role?: 'admin' | 'superadmin'; message?: string } => {
+    if (username === adminCredentials.username && password === adminCredentials.password) {
+      const user: CurrentUser = { username, role: 'admin' };
+      setCurrentUser(user);
+      sessionStorage.setItem('currentUser', JSON.stringify(user));
+      return { success: true, role: 'admin' };
+    } else if (username === superAdminCredentials.username && password === superAdminCredentials.password) {
+      const user: CurrentUser = { username, role: 'superadmin' };
+      setCurrentUser(user);
+      sessionStorage.setItem('currentUser', JSON.stringify(user));
+      return { success: true, role: 'superadmin' };
+    } else {
+      return { success: false, message: 'Username atau password salah!' };
+    }
+  };
+
+  const logout = () => {
+    setCurrentUser(null);
+    sessionStorage.removeItem('currentUser');
+  };
+
   // Save to localStorage
   const updateWeddingData = (data: WeddingData) => {
     setWeddingData(data);
@@ -323,6 +358,9 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh
         superAdminCredentials,
         adminContact,
         setAdminContact: updateAdminContact,
+        currentUser,
+        login,
+        logout,
       }}
     >
       {children}

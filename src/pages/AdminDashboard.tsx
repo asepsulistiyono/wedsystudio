@@ -6,10 +6,15 @@ interface AdminDashboardProps {
 }
 
 export default function AdminDashboard({ navigate }: AdminDashboardProps) {
-  const { weddingData, setWeddingData, guests, siteSettings } = useWedding();
+  const { weddingData, setWeddingData, guests, siteSettings, currentUser, logout } = useWedding();
   const [activeTab, setActiveTab] = useState<'overview' | 'couple' | 'event' | 'content'>('overview');
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(weddingData);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   const handleSave = () => {
     setWeddingData(editData);
@@ -36,7 +41,9 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-gray-800">Admin Panel</h1>
-            <p className="text-sm text-gray-500">Kelola data undangan pernikahan</p>
+            <p className="text-sm text-gray-500">
+              Kelola data undangan pernikahan • Login sebagai: <span className="font-semibold capitalize">{currentUser?.role}</span>
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <a
@@ -45,18 +52,26 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
             >
               Kelola Tamu
             </a>
-            <a
-              href="#/superadmin"
-              className="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              Super Admin
-            </a>
+            {currentUser?.role === 'superadmin' && (
+              <a
+                href="#/superadmin"
+                className="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Super Admin
+              </a>
+            )}
             <a
               href="#/"
               className="px-4 py-2 text-sm bg-[#2d4a3e] text-white rounded-lg hover:bg-[#1a3a2e] transition-colors"
             >
               Lihat Undangan
             </a>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Logout
+            </button>
           </div>
         </div>
       </header>

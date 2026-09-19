@@ -6,7 +6,7 @@ interface GuestManagementProps {
 }
 
 export default function GuestManagement({ navigate }: GuestManagementProps) {
-  const { guests, addGuest, updateGuest, deleteGuest, sendWhatsApp, weddingData } = useWedding();
+  const { guests, addGuest, updateGuest, deleteGuest, sendWhatsApp, weddingData, currentUser, logout } = useWedding();
   const [showForm, setShowForm] = useState(false);
   const [editingGuest, setEditingGuest] = useState<Guest | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,6 +18,11 @@ export default function GuestManagement({ navigate }: GuestManagementProps) {
     group: 'friend' as Guest['group'],
     guests: 1,
   });
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   const filteredGuests = guests.filter(guest => {
     const matchSearch = guest.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -128,7 +133,9 @@ export default function GuestManagement({ navigate }: GuestManagementProps) {
             </a>
             <div>
               <h1 className="text-xl font-bold text-gray-800">Kelola Tamu Undangan</h1>
-              <p className="text-sm text-gray-500">Kirim undangan via WhatsApp</p>
+              <p className="text-sm text-gray-500">
+                Kirim undangan via WhatsApp • Login sebagai: <span className="font-semibold capitalize">{currentUser?.role}</span>
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -138,18 +145,26 @@ export default function GuestManagement({ navigate }: GuestManagementProps) {
             >
               Dashboard
             </a>
-            <a
-              href="#/superadmin"
-              className="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              Super Admin
-            </a>
+            {currentUser?.role === 'superadmin' && (
+              <a
+                href="#/superadmin"
+                className="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Super Admin
+              </a>
+            )}
             <a
               href="#/"
               className="px-4 py-2 text-sm bg-[#2d4a3e] text-white rounded-lg hover:bg-[#1a3a2e] transition-colors"
             >
               Lihat Undangan
             </a>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Logout
+            </button>
           </div>
         </div>
       </header>
