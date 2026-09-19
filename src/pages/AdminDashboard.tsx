@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useWedding, WeddingData, GalleryPhoto } from '../context/WeddingContext';
 import { getReligiousContent } from '../utils/translations';
-import { fileToBase64, getDataUrlSize, formatFileSize } from '../utils/imageCompressor';
+import { getDataUrlSize, formatFileSize } from '../utils/imageCompressor';
 
 interface AdminDashboardProps {
   navigate: (path: string) => void;
@@ -777,94 +777,104 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
 // ============ PHOTOS TAB COMPONENT ============
 function PhotosTab({ weddingData, setWeddingData }: { weddingData: WeddingData; setWeddingData: (data: WeddingData) => void }) {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const showMessage = (type: 'success' | 'error', text: string) => {
-    setMessage({ type, text });
-    setTimeout(() => setMessage(null), 3000);
+  // Error boundary
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <p className="text-red-700">Terjadi kesalahan: {error}</p>
+        <button 
+          onClick={() => setError(null)}
+          className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
+        >
+          Coba Lagi
+        </button>
+      </div>
+    );
+  }
+
+  const handleGroomUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          setWeddingData({ ...weddingData, groomPhoto: reader.result as string });
+          setMessage({ type: 'success', text: 'Foto mempelai pria berhasil diupload!' });
+          setTimeout(() => setMessage(null), 3000);
+        } catch (err) {
+          setError('Gagal menyimpan foto mempelai pria');
+        }
+      };
+      reader.onerror = () => setError('Gagal membaca file');
+      reader.readAsDataURL(file);
+    } catch (err) {
+      setError('Gagal mengupload foto');
+    }
   };
 
-  const handleProfileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'groom' | 'bride') => {
-    const file = e.target.files?.[0];
-    if (!file) {
-      console.log('No file selected');
-      return;
+  const handleBrideUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          setWeddingData({ ...weddingData, bridePhoto: reader.result as string });
+          setMessage({ type: 'success', text: 'Foto mempelai wanita berhasil diupload!' });
+          setTimeout(() => setMessage(null), 3000);
+        } catch (err) {
+          setError('Gagal menyimpan foto mempelai wanita');
+        }
+      };
+      reader.onerror = () => setError('Gagal membaca file');
+      reader.readAsDataURL(file);
+    } catch (err) {
+      setError('Gagal mengupload foto');
     }
-
-    console.log('File selected:', file.name, file.size);
-
-    if (file.size > 10 * 1024 * 1024) {
-      showMessage('error', 'Ukuran file terlalu besar! Maksimal 10MB.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64 = event.target?.result as string;
-      console.log('File converted to base64, size:', getDataUrlSize(base64), 'KB');
-      
-      if (type === 'groom') {
-        setWeddingData({ ...weddingData, groomPhoto: base64 });
-      } else {
-        setWeddingData({ ...weddingData, bridePhoto: base64 });
-      }
-      
-      showMessage('success', `Foto ${type === 'groom' ? 'mempelai pria' : 'mempelai wanita'} berhasil diupload! (${formatFileSize(getDataUrlSize(base64))})`);
-    };
-    
-    reader.onerror = (error) => {
-      console.error('FileReader error:', error);
-      showMessage('error', 'Gagal membaca file.');
-    };
-    
-    reader.readAsDataURL(file);
   };
 
   const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+    try {
+      const files = e.target.files;
+      if (!files) return;
 
-    console.log('Gallery files selected:', files.length);
+      const newPhotos: GalleryPhoto[] = [];
+      let loaded = 0;
 
-    const newPhotos: GalleryPhoto[] = [];
-    let processedCount = 0;
-
-    Array.from(files).forEach((file, index) => {
-      if (file.size > 10 * 1024 * 1024) {
-        console.log('File too large, skipping:', file.name);
-        processedCount++;
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const base64 = event.target?.result as string;
-        newPhotos.push({
-          id: Date.now().toString() + index,
-          dataUrl: base64,
-          caption: '',
-          createdAt: new Date().toISOString(),
-        });
-
-        processedCount++;
-
-        if (processedCount === files.length) {
-          setWeddingData({ 
-            ...weddingData, 
-            galleryPhotos: [...weddingData.galleryPhotos, ...newPhotos] 
-          });
-          
-          const totalSize = newPhotos.reduce((sum, p) => sum + getDataUrlSize(p.dataUrl), 0);
-          showMessage('success', `${newPhotos.length} foto berhasil diupload! (Total: ${formatFileSize(totalSize)})`);
-        }
-      };
-      
-      reader.onerror = (error) => {
-        console.error('FileReader error:', error);
-        processedCount++;
-      };
-      
-      reader.readAsDataURL(file);
-    });
+      Array.from(files).forEach((file, i) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            newPhotos.push({
+              id: Date.now().toString() + i,
+              dataUrl: reader.result as string,
+              caption: '',
+              createdAt: new Date().toISOString(),
+            });
+            loaded++;
+            if (loaded === files.length) {
+              setWeddingData({ 
+                ...weddingData, 
+                galleryPhotos: [...weddingData.galleryPhotos, ...newPhotos] 
+              });
+              setMessage({ type: 'success', text: `${newPhotos.length} foto berhasil diupload!` });
+              setTimeout(() => setMessage(null), 3000);
+            }
+          } catch (err) {
+            setError('Gagal menyimpan foto galeri');
+          }
+        };
+        reader.onerror = () => setError('Gagal membaca file');
+        reader.readAsDataURL(file);
+      });
+    } catch (err) {
+      setError('Gagal mengupload foto');
+    }
   };
 
   const deleteGalleryPhoto = (id: string) => {
@@ -873,7 +883,8 @@ function PhotosTab({ weddingData, setWeddingData }: { weddingData: WeddingData; 
         ...weddingData,
         galleryPhotos: weddingData.galleryPhotos.filter(p => p.id !== id),
       });
-      showMessage('success', 'Foto berhasil dihapus');
+      setMessage({ type: 'success', text: 'Foto berhasil dihapus' });
+      setTimeout(() => setMessage(null), 3000);
     }
   };
 
@@ -890,7 +901,8 @@ function PhotosTab({ weddingData, setWeddingData }: { weddingData: WeddingData; 
     } else {
       setWeddingData({ ...weddingData, bridePhoto: '' });
     }
-    showMessage('success', 'Foto berhasil dihapus');
+    setMessage({ type: 'success', text: 'Foto berhasil dihapus' });
+    setTimeout(() => setMessage(null), 3000);
   };
 
   return (
@@ -927,7 +939,7 @@ function PhotosTab({ weddingData, setWeddingData }: { weddingData: WeddingData; 
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => handleProfileUpload(e, 'groom')}
+              onChange={handleGroomUpload}
               className="block mx-auto mb-2 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2d4a3e] file:text-white hover:file:bg-[#1a3a2e] file:cursor-pointer"
             />
             {weddingData.groomPhoto && (
@@ -957,7 +969,7 @@ function PhotosTab({ weddingData, setWeddingData }: { weddingData: WeddingData; 
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => handleProfileUpload(e, 'bride')}
+              onChange={handleBrideUpload}
               className="block mx-auto mb-2 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2d4a3e] file:text-white hover:file:bg-[#1a3a2e] file:cursor-pointer"
             />
             {weddingData.bridePhoto && (
