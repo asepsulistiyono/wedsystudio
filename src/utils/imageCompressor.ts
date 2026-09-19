@@ -1,47 +1,44 @@
-// Kompresi gambar agresif untuk penyimpanan di localStorage
-
+// Image compression utility
 export interface CompressOptions {
   maxWidth: number;
   maxHeight: number;
   quality: number;
-  outputFormat: 'image/jpeg' | 'image/webp';
 }
 
 export const PROFILE_OPTIONS: CompressOptions = {
   maxWidth: 400,
   maxHeight: 400,
   quality: 0.6,
-  outputFormat: 'image/jpeg',
 };
 
 export const GALLERY_OPTIONS: CompressOptions = {
   maxWidth: 800,
   maxHeight: 800,
   quality: 0.55,
-  outputFormat: 'image/jpeg',
 };
 
-export async function compressImage(
-  file: File,
-  options: CompressOptions
-): Promise<string> {
+export function compressImage(file: File, options: CompressOptions): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
+    
     reader.onload = (e) => {
       const img = new Image();
+      img.src = e.target?.result as string;
+      
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        let { width, height } = img;
+        let width = img.width;
+        let height = img.height;
 
-        // Hitung dimensi baru
+        // Calculate new dimensions
         if (width > height) {
           if (width > options.maxWidth) {
-            height = (height * options.maxWidth) / width;
+            height = Math.round((height * options.maxWidth) / width);
             width = options.maxWidth;
           }
         } else {
           if (height > options.maxHeight) {
-            width = (width * options.maxHeight) / height;
+            width = Math.round((width * options.maxHeight) / height);
             height = options.maxHeight;
           }
         }
@@ -55,41 +52,32 @@ export async function compressImage(
           return;
         }
 
-        // Background putih untuk JPEG (karena JPEG tidak support transparansi)
-        if (options.outputFormat === 'image/jpeg') {
-          ctx.fillStyle = '#FFFFFF';
-          ctx.fillRect(0, 0, width, height);
-        }
+        // White background for JPEG
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, width, height);
 
-        // Smoothing untuk kualitas lebih baik
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
+        // Draw image
         ctx.drawImage(img, 0, 0, width, height);
 
-        const compressedDataUrl = canvas.toDataURL(
-          options.outputFormat,
-          options.quality
-        );
-
-        resolve(compressedDataUrl);
+        // Convert to data URL
+        const dataUrl = canvas.toDataURL('image/jpeg', options.quality);
+        resolve(dataUrl);
       };
+
       img.onerror = () => reject(new Error('Failed to load image'));
-      img.src = e.target?.result as string;
     };
+
     reader.onerror = () => reject(new Error('Failed to read file'));
     reader.readAsDataURL(file);
   });
 }
 
-// Helper untuk mendapatkan ukuran file dalam KB
 export function getDataUrlSize(dataUrl: string): number {
   const base64 = dataUrl.split(',')[1];
   return Math.round((base64.length * 3) / 4 / 1024);
 }
 
-// Helper untuk format ukuran file
-export function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+export function formatFileSize(kb: number): string {
+  if (kb < 1024) return `${kb} KB`;
+  return `${(kb / 1024).toFixed(2)} MB`;
 }
