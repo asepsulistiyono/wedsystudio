@@ -6,15 +6,53 @@ import { WeddingData } from '../context/WeddingContext';
  * This ensures all religious texts are updated when language changes
  */
 export function syncReligiousContent(data: WeddingData): WeddingData {
+  console.log('🔄 Syncing religious content for:', { 
+    language: data.language, 
+    religion: data.religion 
+  });
+  
   const religiousContent = getReligiousContent(data.religion, data.language);
   
-  return {
+  console.log('✅ Religious content loaded:', {
+    opening: religiousContent.opening.substring(0, 50) + '...',
+    quote: religiousContent.quote.substring(0, 50) + '...',
+    closing: religiousContent.closing.substring(0, 50) + '...'
+  });
+  
+  const synced = {
     ...data,
     bismillah: religiousContent.opening,
     quote: religiousContent.quote,
     quoteSource: religiousContent.quoteSource,
     closingText: religiousContent.closing,
   };
+  
+  console.log('✅ Sync complete. Data updated.');
+  
+  return synced;
+}
+
+/**
+ * Force reset and sync all religious content
+ * Use this when language/religion changes to ensure everything is updated
+ */
+export function forceSyncReligiousContent(data: WeddingData): WeddingData {
+  console.log('🔄 Force syncing religious content...');
+  console.log('📋 Current data:', {
+    language: data.language,
+    religion: data.religion,
+    currentBismillah: data.bismillah?.substring(0, 30),
+    currentQuote: data.quote?.substring(0, 30)
+  });
+  
+  const synced = syncReligiousContent(data);
+  
+  console.log('✅ Force sync complete. New data:', {
+    newBismillah: synced.bismillah?.substring(0, 30),
+    newQuote: synced.quote?.substring(0, 30)
+  });
+  
+  return synced;
 }
 
 /**
