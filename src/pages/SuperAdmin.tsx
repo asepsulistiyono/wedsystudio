@@ -37,11 +37,11 @@ export default function SuperAdmin() {
       <header className="bg-gradient-to-r from-purple-700 to-purple-900 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link to="/admin" className="text-white/70 hover:text-white">
+            <a href="#/admin" className="text-white/70 hover:text-white">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-            </Link>
+            </a>
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold text-white">Super Admin Panel</h1>
@@ -51,24 +51,24 @@ export default function SuperAdmin() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              to="/admin"
+            <a
+              href="#/admin"
               className="px-4 py-2 text-sm bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
             >
               Admin
-            </Link>
-            <Link
-              to="/admin/guests"
+            </a>
+            <a
+              href="#/admin/guests"
               className="px-4 py-2 text-sm bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
             >
               Tamu
-            </Link>
-            <Link
-              to="/"
+            </a>
+            <a
+              href="#/"
               className="px-4 py-2 text-sm bg-white text-purple-700 rounded-lg hover:bg-purple-50 transition-colors font-medium"
             >
               Lihat Undangan
-            </Link>
+            </a>
           </div>
         </div>
       </header>

@@ -37,30 +37,24 @@ export default function AdminDashboard() {
             <p className="text-sm text-gray-500">Kelola data undangan pernikahan</p>
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              to="/admin/guests"
+            <a
+              href="#/admin/guests"
               className="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               Kelola Tamu
-            </Link>
-            <Link
-              to="/superadmin"
+            </a>
+            <a
+              href="#/superadmin"
               className="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
             >
               Super Admin
-            </Link>
-            <Link
-              to="/"
+            </a>
+            <a
+              href="#/"
               className="px-4 py-2 text-sm bg-[#2d4a3e] text-white rounded-lg hover:bg-[#1a3a2e] transition-colors"
             >
               Lihat Undangan
-            </Link>
-            <button
-              onClick={() => navigate('/')}
-              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
-            >
-              Keluar
-            </button>
+            </a>
           </div>
         </div>
       </header>
@@ -175,8 +169,8 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 </button>
-                <Link
-                  to="/admin/guests"
+                <a
+                  href="#/admin/guests"
                   className="p-4 border border-gray-200 rounded-lg hover:border-green-600 hover:bg-green-50 transition-all text-left"
                 >
                   <div className="flex items-center gap-3">
@@ -186,7 +180,7 @@ export default function AdminDashboard() {
                       <p className="text-sm text-gray-500">Kirim undangan via WA</p>
                     </div>
                   </div>
-                </Link>
+                </a>
               </div>
             </div>
 

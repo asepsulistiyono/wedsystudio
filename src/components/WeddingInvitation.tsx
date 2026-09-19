@@ -573,15 +573,15 @@ function FooterSection() {
             Made with 💛 for our special day
           </p>
           <div className="mt-6 flex flex-col items-center gap-3">
-            <Link 
-              to="/login" 
+            <a 
+              href="#/login" 
               className="inline-flex items-center gap-2 px-6 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-xs text-white/70 hover:text-white transition-all"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
               </svg>
               Admin Panel
-            </Link>
+            </a>
             <p className="text-xs text-white/30">
               Atau akses langsung: <a href="#/login" className="text-[#c9a96e] hover:underline">#/login</a>
             </p>
@@ -596,8 +596,8 @@ function FooterSection() {
 function AdminFloatingButton() {
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      <Link
-        to="/login"
+      <a
+        href="#/login"
         className="flex items-center gap-2 px-4 py-2 bg-[#2d4a3e] hover:bg-[#1a3a2e] text-white rounded-full shadow-lg transition-all hover:scale-105"
         title="Admin Panel"
       >
@@ -606,7 +606,7 @@ function AdminFloatingButton() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
         <span className="text-sm font-medium hidden md:inline">Admin</span>
-      </Link>
+      </a>
     </div>
   );
 }

@@ -118,35 +118,35 @@ export default function GuestManagement() {
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link to="/admin" className="text-gray-500 hover:text-gray-700">
+            <a href="#/admin" className="text-gray-500 hover:text-gray-700">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-            </Link>
+            </a>
             <div>
               <h1 className="text-xl font-bold text-gray-800">Kelola Tamu Undangan</h1>
               <p className="text-sm text-gray-500">Kirim undangan via WhatsApp</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              to="/admin"
+            <a
+              href="#/admin"
               className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
             >
               Dashboard
-            </Link>
-            <Link
-              to="/superadmin"
+            </a>
+            <a
+              href="#/superadmin"
               className="px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
             >
               Super Admin
-            </Link>
-            <Link
-              to="/"
+            </a>
+            <a
+              href="#/"
               className="px-4 py-2 text-sm bg-[#2d4a3e] text-white rounded-lg hover:bg-[#1a3a2e] transition-colors"
             >
               Lihat Undangan
-            </Link>
+            </a>
           </div>
         </div>
       </header>
