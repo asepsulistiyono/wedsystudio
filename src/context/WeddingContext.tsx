@@ -22,6 +22,8 @@ export interface WeddingData {
   quote: string;
   quoteSource: string;
   closingText: string;
+  language: 'id' | 'en';
+  religion: 'islam' | 'kristen' | 'hindu' | 'buddha' | 'konghucu' | 'universal';
 }
 
 export interface Guest {
@@ -108,6 +110,8 @@ const defaultWeddingData: WeddingData = {
   quote: 'Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu istri-istri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya, dan dijadikan-Nya di antaramu rasa kasih dan sayang.',
   quoteSource: 'QS. Ar-Rum: 21',
   closingText: 'Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu.',
+  language: 'id',
+  religion: 'islam',
 };
 
 const defaultGuests: Guest[] = [

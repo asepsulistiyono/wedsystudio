@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useWedding } from '../context/WeddingContext';
+import { getReligiousContent, t, religionLabels } from '../utils/translations';
 
 // ============ COVER SECTION ============
 function CoverSection({ onOpen }: { onOpen: () => void }) {
   const { weddingData, siteSettings } = useWedding();
+  const lang = weddingData.language;
   
   if (!siteSettings.coverEnabled) {
     onOpen();
@@ -20,7 +22,7 @@ function CoverSection({ onOpen }: { onOpen: () => void }) {
           </svg>
         </div>
         <p className="font-elegant text-lg md:text-xl tracking-widest uppercase mb-4 text-[#e8d5a3]">
-          The Wedding Of
+          {t('theWeddingOf', lang)}
         </p>
         <h1 className="font-script text-5xl md:text-7xl mb-4 text-white">
           {weddingData.groomName.split(' ')[0]} & {weddingData.brideName.split(' ')[0]}
@@ -28,13 +30,13 @@ function CoverSection({ onOpen }: { onOpen: () => void }) {
         <div className="ornament-divider mb-6">
           <span className="gold-text text-2xl">✦</span>
         </div>
-        <p className="font-elegant text-lg md:text-xl mb-2">Kepada Yth.</p>
-        <p className="font-display text-xl md:text-2xl mb-8">Bapak/Ibu/Saudara/i</p>
+        <p className="font-elegant text-lg md:text-xl mb-2">{t('to', lang)}</p>
+        <p className="font-display text-xl md:text-2xl mb-8">{t('mrMrs', lang)}</p>
         <button
           onClick={onOpen}
           className="px-8 py-3 border-2 border-[#c9a96e] text-[#e8d5a3] rounded-full font-elegant text-lg tracking-wider hover:bg-[#c9a96e] hover:text-white transition-all duration-300 animate-pulse-slow"
         >
-          ✉ Buka Undangan
+          ✉ {t('openInvitation', lang)}
         </button>
       </div>
       <div className="absolute top-10 left-10 opacity-20">
@@ -58,7 +60,10 @@ function CoverSection({ onOpen }: { onOpen: () => void }) {
 // ============ HERO SECTION ============
 function HeroSection() {
   const { weddingData } = useWedding();
-  const formattedDate = new Date(weddingData.weddingDate).toLocaleDateString('id-ID', {
+  const lang = weddingData.language;
+  const religiousContent = getReligiousContent(weddingData.religion, lang);
+  
+  const formattedDate = new Date(weddingData.weddingDate).toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -87,11 +92,13 @@ function HeroSection() {
       </div>
 
       <div className="relative z-10 text-center px-6 animate-fade-in-up">
-        <p className="font-elegant text-[#e8d5a3] text-lg md:text-xl tracking-[0.3em] uppercase mb-6">
-          {weddingData.bismillah}
+        <p className="font-elegant text-[#e8d5a3] text-lg md:text-xl tracking-[0.3em] uppercase mb-6 whitespace-pre-line">
+          {religiousContent.opening}
         </p>
         <p className="font-elegant text-white/80 text-base md:text-lg mb-8 max-w-md mx-auto">
-          Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan pernikahan putra-putri kami
+          {lang === 'id' 
+            ? 'Dengan memohon rahmat dan ridho Tuhan Yang Maha Esa, kami bermaksud menyelenggarakan pernikahan putra-putri kami'
+            : 'With the blessings of the Almighty God, we intend to hold the wedding ceremony of our children'}
         </p>
         
         <div className="mb-8">
@@ -125,19 +132,22 @@ function HeroSection() {
 // ============ COUPLE SECTION ============
 function CoupleSection() {
   const { weddingData } = useWedding();
+  const lang = weddingData.language;
+  const religiousContent = getReligiousContent(weddingData.religion, lang);
 
   return (
     <section className="section-padding bg-[#faf7f2] leaf-pattern">
       <div className="max-w-4xl mx-auto text-center">
-        <p className="font-elegant text-[#c9a96e] text-lg tracking-widest uppercase mb-2">Mempelai</p>
-        <h2 className="font-display text-3xl md:text-4xl text-[#2d4a3e] mb-4">Assalamu'alaikum Wr. Wb.</h2>
+        <p className="font-elegant text-[#c9a96e] text-lg tracking-widest uppercase mb-2">
+          {lang === 'id' ? 'Mempelai' : 'The Couple'}
+        </p>
         <div className="ornament-divider mb-8">
           <span className="text-[#c9a96e]">✦</span>
         </div>
         <p className="font-elegant text-lg text-gray-600 max-w-2xl mx-auto mb-6 leading-relaxed">
-          "{weddingData.quote}"
+          "{religiousContent.quote}"
         </p>
-        <p className="font-elegant text-[#c9a96e] text-lg mb-16">— {weddingData.quoteSource} —</p>
+        <p className="font-elegant text-[#c9a96e] text-lg mb-16">— {religiousContent.quoteSource} —</p>
 
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="text-center">
@@ -147,7 +157,9 @@ function CoupleSection() {
               </div>
             </div>
             <h3 className="font-script text-4xl text-[#2d4a3e] mb-2">{weddingData.groomName}</h3>
-            <p className="font-elegant text-gray-600 text-lg mb-2">Putra dari</p>
+            <p className="font-elegant text-gray-600 text-lg mb-2">
+              {lang === 'id' ? 'Putra dari' : 'Son of'}
+            </p>
             <p className="font-display text-gray-700">{weddingData.groomFather}</p>
             <p className="font-display text-gray-500">&</p>
             <p className="font-display text-gray-700">{weddingData.groomMother}</p>
@@ -160,7 +172,9 @@ function CoupleSection() {
               </div>
             </div>
             <h3 className="font-script text-4xl text-[#2d4a3e] mb-2">{weddingData.brideName}</h3>
-            <p className="font-elegant text-gray-600 text-lg mb-2">Putri dari</p>
+            <p className="font-elegant text-gray-600 text-lg mb-2">
+              {lang === 'id' ? 'Putri dari' : 'Daughter of'}
+            </p>
             <p className="font-display text-gray-700">{weddingData.brideFather}</p>
             <p className="font-display text-gray-500">&</p>
             <p className="font-display text-gray-700">{weddingData.brideMother}</p>
@@ -546,16 +560,16 @@ function GiftSection() {
 // ============ FOOTER SECTION ============
 function FooterSection() {
   const { weddingData } = useWedding();
-  const formattedDate = new Date(weddingData.weddingDate).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, ' • ');
+  const lang = weddingData.language;
+  const religiousContent = getReligiousContent(weddingData.religion, lang);
+  
+  const formattedDate = new Date(weddingData.weddingDate).toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, ' • ');
 
   return (
     <section className="py-16 px-6 text-center" style={{ background: 'linear-gradient(180deg, #1a3a2e 0%, #0f2a1e 100%)' }}>
       <div className="max-w-2xl mx-auto">
-        <p className="font-elegant text-[#e8d5a3] text-lg mb-4">
-          {weddingData.closingText}
-        </p>
-        <p className="font-elegant text-white/60 mb-8">
-          Wassalamu'alaikum Warahmatullahi Wabarakatuh
+        <p className="font-elegant text-[#e8d5a3] text-lg mb-4 whitespace-pre-line">
+          {religiousContent.closing}
         </p>
         
         <div className="ornament-divider mb-8">
@@ -577,6 +591,51 @@ function FooterSection() {
   );
 }
 
+// ============ LANGUAGE & RELIGION SELECTOR ============
+function LanguageReligionSelector() {
+  const { weddingData, setWeddingData } = useWedding();
+
+  return (
+    <div className="fixed top-4 left-4 z-50 flex flex-col gap-2">
+      {/* Language Toggle */}
+      <div className="bg-white/90 backdrop-blur-md rounded-full px-3 py-1.5 shadow-lg border border-[#c9a96e]/20 flex items-center gap-1">
+        <button
+          onClick={() => setWeddingData({ ...weddingData, language: 'id' })}
+          className={`px-2 py-1 rounded-full text-xs font-medium transition-all ${
+            weddingData.language === 'id' ? 'bg-[#2d4a3e] text-white' : 'text-gray-500 hover:text-[#2d4a3e]'
+          }`}
+        >
+          ID
+        </button>
+        <button
+          onClick={() => setWeddingData({ ...weddingData, language: 'en' })}
+          className={`px-2 py-1 rounded-full text-xs font-medium transition-all ${
+            weddingData.language === 'en' ? 'bg-[#2d4a3e] text-white' : 'text-gray-500 hover:text-[#2d4a3e]'
+          }`}
+        >
+          EN
+        </button>
+      </div>
+
+      {/* Religion Selector */}
+      <div className="bg-white/90 backdrop-blur-md rounded-full px-3 py-1.5 shadow-lg border border-[#c9a96e]/20">
+        <select
+          value={weddingData.religion}
+          onChange={(e) => setWeddingData({ ...weddingData, religion: e.target.value as any })}
+          className="text-xs bg-transparent border-none focus:outline-none cursor-pointer text-gray-600 font-medium"
+        >
+          <option value="islam">☪ Islam</option>
+          <option value="kristen">✝ Kristen</option>
+          <option value="hindu">🕉 Hindu</option>
+          <option value="buddha">☸ Buddha</option>
+          <option value="konghucu">☯ Konghucu</option>
+          <option value="universal">♾ Universal</option>
+        </select>
+      </div>
+    </div>
+  );
+}
+
 // ============ MAIN COMPONENT ============
 export default function WeddingInvitation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -587,11 +646,17 @@ export default function WeddingInvitation() {
   };
 
   if (!isOpen) {
-    return <CoverSection onOpen={handleOpen} />;
+    return (
+      <>
+        <CoverSection onOpen={handleOpen} />
+        <LanguageReligionSelector />
+      </>
+    );
   }
 
   return (
     <div className="animate-fade-in">
+      <LanguageReligionSelector />
       <HeroSection />
       <CoupleSection />
       <CountdownSection />
