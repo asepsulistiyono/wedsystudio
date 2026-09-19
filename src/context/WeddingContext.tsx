@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { getReligiousContent } from '../utils/translations';
-import { syncReligiousContent } from '../utils/languageSync';
+import { syncReligiousContent, forceSyncReligiousContent } from '../utils/languageSync';
 
 // ============ TYPES ============
 export interface WeddingData {
@@ -106,6 +106,7 @@ interface WeddingContextType {
   updateAdmin: (id: string, updates: Partial<AdminCredentials>) => void;
   deleteAdmin: (id: string) => void;
   resetAdminPassword: (id: string) => void;
+  resetAndSyncLanguage: () => void;
 }
 
 const defaultWeddingData: WeddingData = {
@@ -379,11 +380,20 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
 
   // Save to localStorage
   const updateWeddingData = (data: WeddingData) => {
-    // Use syncReligiousContent to ensure all religious texts are updated
-    const updatedData = syncReligiousContent(data);
+    // Use forceSyncReligiousContent to ensure all religious texts are updated
+    const updatedData = forceSyncReligiousContent(data);
     
     setWeddingData(updatedData);
     localStorage.setItem('weddingData', JSON.stringify(updatedData));
+  };
+
+  // Force reset and sync all religious content
+  const resetAndSyncLanguage = () => {
+    console.log('🔄 Resetting and syncing language...');
+    const syncedData = forceSyncReligiousContent(weddingData);
+    setWeddingData(syncedData);
+    localStorage.setItem('weddingData', JSON.stringify(syncedData));
+    console.log('✅ Reset and sync complete!');
   };
 
   const updateGuests = (newGuests: Guest[]) => {
@@ -494,6 +504,7 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh
         updateAdmin,
         deleteAdmin,
         resetAdminPassword,
+        resetAndSyncLanguage,
       }}
     >
       {children}

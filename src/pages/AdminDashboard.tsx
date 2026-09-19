@@ -7,7 +7,7 @@ interface AdminDashboardProps {
 }
 
 export default function AdminDashboard({ navigate }: AdminDashboardProps) {
-  const { weddingData, setWeddingData, guests, siteSettings, currentUser, logout } = useWedding();
+  const { weddingData, setWeddingData, guests, siteSettings, currentUser, logout, resetAndSyncLanguage } = useWedding();
   const [activeTab, setActiveTab] = useState<'overview' | 'couple' | 'event' | 'content' | 'settings'>('overview');
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(weddingData);
@@ -925,6 +925,16 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
                     className="px-6 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm hover:bg-gray-50 transition-colors"
                   >
                     Reset
+                  </button>
+                  <button
+                    onClick={() => {
+                      // Force sync religious content
+                      resetAndSyncLanguage();
+                      alert('Bahasa dan konten religius berhasil di-sinkronisasi! Silakan refresh halaman undangan.');
+                    }}
+                    className="px-6 py-2 bg-orange-500 text-white rounded-lg text-sm hover:bg-orange-600 transition-colors"
+                  >
+                    🔄 Reset & Sync Bahasa
                   </button>
                   <button
                     onClick={() => {
