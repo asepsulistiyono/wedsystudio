@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useWedding } from '../context/WeddingContext';
+import { getReligiousContent } from '../utils/translations';
 
 interface AdminDashboardProps {
   navigate: (path: string) => void;
@@ -7,7 +8,7 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ navigate }: AdminDashboardProps) {
   const { weddingData, setWeddingData, guests, siteSettings, currentUser, logout } = useWedding();
-  const [activeTab, setActiveTab] = useState<'overview' | 'couple' | 'event' | 'content'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'couple' | 'event' | 'content' | 'settings'>('overview');
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(weddingData);
 
@@ -78,17 +79,18 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 border-b border-gray-200">
+        <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">
           {[
             { id: 'overview', label: 'Overview' },
             { id: 'couple', label: 'Data Mempelai' },
             { id: 'event', label: 'Data Acara' },
             { id: 'content', label: 'Konten' },
+            { id: 'settings', label: '⚙️ Bahasa & Agama' },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => { setActiveTab(tab.id as any); setIsEditing(false); }}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'border-[#2d4a3e] text-[#2d4a3e]'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -631,6 +633,128 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
                 ) : (
                   <p className="text-gray-800">{weddingData.closingText}</p>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Settings Tab - Language & Religion */}
+        {activeTab === 'settings' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <h3 className="text-lg font-bold text-gray-800 mb-6">Pengaturan Bahasa & Agama</h3>
+              
+              <div className="space-y-6">
+                {/* Language Selection */}
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-3">
+                    🌐 Bahasa Undangan
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => setEditData({...editData, language: 'id'})}
+                      className={`p-4 rounded-lg border-2 transition-all ${
+                        editData.language === 'id'
+                          ? 'border-[#2d4a3e] bg-green-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="text-2xl mb-2">🇮🇩</div>
+                      <p className="font-medium text-gray-800">Bahasa Indonesia</p>
+                      <p className="text-xs text-gray-500 mt-1">Undangan dalam bahasa Indonesia</p>
+                    </button>
+                    <button
+                      onClick={() => setEditData({...editData, language: 'en'})}
+                      className={`p-4 rounded-lg border-2 transition-all ${
+                        editData.language === 'en'
+                          ? 'border-[#2d4a3e] bg-green-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="text-2xl mb-2">🇬🇧</div>
+                      <p className="font-medium text-gray-800">English</p>
+                      <p className="text-xs text-gray-500 mt-1">Invitation in English</p>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Religion Selection */}
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-3">
+                    🕌 Format Agama
+                  </label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {[
+                      { id: 'islam', icon: '☪️', name: 'Islam', desc: 'Format Islami' },
+                      { id: 'kristen', icon: '✝️', name: 'Kristen', desc: 'Format Kristen' },
+                      { id: 'hindu', icon: '🕉️', name: 'Hindu', desc: 'Format Hindu' },
+                      { id: 'buddha', icon: '☸️', name: 'Buddha', desc: 'Format Buddha' },
+                      { id: 'konghucu', icon: '☯️', name: 'Konghucu', desc: 'Format Konghucu' },
+                      { id: 'universal', icon: '♾️', name: 'Universal', desc: 'Format Umum' },
+                    ].map((religion) => (
+                      <button
+                        key={religion.id}
+                        onClick={() => setEditData({...editData, religion: religion.id as any})}
+                        className={`p-4 rounded-lg border-2 transition-all text-left ${
+                          editData.religion === religion.id
+                            ? 'border-[#2d4a3e] bg-green-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="text-2xl mb-2">{religion.icon}</div>
+                        <p className="font-medium text-gray-800">{religion.name}</p>
+                        <p className="text-xs text-gray-500 mt-1">{religion.desc}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Preview */}
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">Preview Konten</h4>
+                  <div className="space-y-3 text-sm">
+                    <div>
+                      <span className="text-gray-500">Pembukaan:</span>
+                      <p className="text-gray-800 mt-1 whitespace-pre-line">
+                        {getReligiousContent(editData.religion, editData.language).opening}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Kutipan:</span>
+                      <p className="text-gray-800 mt-1 italic">
+                        "{getReligiousContent(editData.religion, editData.language).quote}"
+                      </p>
+                      <p className="text-gray-600 text-xs mt-1">
+                        — {getReligiousContent(editData.religion, editData.language).quoteSource}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Penutup:</span>
+                      <p className="text-gray-800 mt-1 whitespace-pre-line">
+                        {getReligiousContent(editData.religion, editData.language).closing}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Save Button */}
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setEditData(weddingData)}
+                    className="px-6 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+                  >
+                    Reset
+                  </button>
+                  <button
+                    onClick={() => {
+                      setWeddingData(editData);
+                      alert('Pengaturan bahasa dan agama berhasil disimpan!');
+                    }}
+                    className="px-6 py-2 bg-[#2d4a3e] text-white rounded-lg text-sm hover:bg-[#1a3a2e] transition-colors"
+                  >
+                    Simpan Pengaturan
+                  </button>
+                </div>
               </div>
             </div>
           </div>
