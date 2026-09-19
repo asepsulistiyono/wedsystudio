@@ -928,8 +928,14 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
                   </button>
                   <button
                     onClick={() => {
-                      setWeddingData(editData);
-                      alert('Pengaturan bahasa dan agama berhasil disimpan!');
+                      // Ensure all required fields are present
+                      const dataToSave = {
+                        ...editData,
+                        language: editData.language || 'id',
+                        religion: editData.religion || 'islam',
+                      };
+                      setWeddingData(dataToSave);
+                      alert('Pengaturan bahasa dan agama berhasil disimpan! Silakan refresh halaman undangan untuk melihat perubahan.');
                     }}
                     className="px-6 py-2 bg-[#2d4a3e] text-white rounded-lg text-sm hover:bg-[#1a3a2e] transition-colors"
                   >

@@ -214,8 +214,16 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
       const saved = localStorage.getItem('weddingData');
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Ensure galleryPhotos exists
-        return { ...defaultWeddingData, ...parsed, galleryPhotos: parsed.galleryPhotos || [] };
+        // Ensure all required fields exist with defaults
+        return { 
+          ...defaultWeddingData, 
+          ...parsed, 
+          galleryPhotos: parsed.galleryPhotos || [],
+          language: parsed.language || 'id',
+          religion: parsed.religion || 'islam',
+          groomPhoto: parsed.groomPhoto || '',
+          bridePhoto: parsed.bridePhoto || '',
+        };
       }
     } catch (e) {
       console.error('Error parsing weddingData:', e);

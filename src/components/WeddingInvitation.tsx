@@ -652,6 +652,12 @@ function FooterSection() {
 // ============ MAIN COMPONENT ============
 export default function WeddingInvitation() {
   const [isOpen, setIsOpen] = useState(false);
+  const { weddingData } = useWedding();
+
+  // Force re-render when language changes
+  useEffect(() => {
+    console.log('Language changed to:', weddingData.language);
+  }, [weddingData.language]);
 
   const handleOpen = () => {
     setIsOpen(true);
@@ -663,7 +669,7 @@ export default function WeddingInvitation() {
   }
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in" key={weddingData.language}>
       <HeroSection />
       <CoupleSection />
       <CountdownSection />
