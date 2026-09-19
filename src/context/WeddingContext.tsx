@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
+import { getReligiousContent } from '../utils/translations';
 
 // ============ TYPES ============
 export interface WeddingData {
@@ -214,15 +215,27 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
       const saved = localStorage.getItem('weddingData');
       if (saved) {
         const parsed = JSON.parse(saved);
+        const language = parsed.language || 'id';
+        const religion = parsed.religion || 'islam';
+        
+        // Get religious content based on language and religion
+        const religiousContent = getReligiousContent(religion, language);
+        
         // Ensure all required fields exist with defaults
+        // Override quote, quoteSource, bismillah, closingText with template values
         return { 
           ...defaultWeddingData, 
           ...parsed, 
           galleryPhotos: parsed.galleryPhotos || [],
-          language: parsed.language || 'id',
-          religion: parsed.religion || 'islam',
+          language: language,
+          religion: religion,
           groomPhoto: parsed.groomPhoto || '',
           bridePhoto: parsed.bridePhoto || '',
+          // Always use template values for religious content
+          bismillah: religiousContent.opening,
+          quote: religiousContent.quote,
+          quoteSource: religiousContent.quoteSource,
+          closingText: religiousContent.closing,
         };
       }
     } catch (e) {
@@ -371,8 +384,18 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
 
   // Save to localStorage
   const updateWeddingData = (data: WeddingData) => {
-    setWeddingData(data);
-    localStorage.setItem('weddingData', JSON.stringify(data));
+    // Always update religious content based on current language and religion
+    const religiousContent = getReligiousContent(data.religion, data.language);
+    const updatedData = {
+      ...data,
+      bismillah: religiousContent.opening,
+      quote: religiousContent.quote,
+      quoteSource: religiousContent.quoteSource,
+      closingText: religiousContent.closing,
+    };
+    
+    setWeddingData(updatedData);
+    localStorage.setItem('weddingData', JSON.stringify(updatedData));
   };
 
   const updateGuests = (newGuests: Guest[]) => {
