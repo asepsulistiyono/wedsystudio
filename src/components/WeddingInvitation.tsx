@@ -152,9 +152,17 @@ function CoupleSection() {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="text-center">
             <div className="w-48 h-48 mx-auto mb-6 rounded-full overflow-hidden border-4 border-[#c9a96e] shadow-lg">
-              <div className="w-full h-full bg-gradient-to-br from-[#2d4a3e] to-[#1a3a2e] flex items-center justify-center">
-                <span className="font-script text-5xl text-[#e8d5a3]">{weddingData.groomInitial}</span>
-              </div>
+              {weddingData.groomPhoto ? (
+                <img 
+                  src={weddingData.groomPhoto} 
+                  alt={weddingData.groomName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-[#2d4a3e] to-[#1a3a2e] flex items-center justify-center">
+                  <span className="font-script text-5xl text-[#e8d5a3]">{weddingData.groomInitial}</span>
+                </div>
+              )}
             </div>
             <h3 className="font-script text-4xl text-[#2d4a3e] mb-2">{weddingData.groomName}</h3>
             <p className="font-elegant text-gray-600 text-lg mb-2">
@@ -167,9 +175,17 @@ function CoupleSection() {
 
           <div className="text-center">
             <div className="w-48 h-48 mx-auto mb-6 rounded-full overflow-hidden border-4 border-[#c9a96e] shadow-lg">
-              <div className="w-full h-full bg-gradient-to-br from-[#c9a96e] to-[#a88a52] flex items-center justify-center">
-                <span className="font-script text-5xl text-white">{weddingData.brideInitial}</span>
-              </div>
+              {weddingData.bridePhoto ? (
+                <img 
+                  src={weddingData.bridePhoto} 
+                  alt={weddingData.brideName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-[#c9a96e] to-[#a88a52] flex items-center justify-center">
+                  <span className="font-script text-5xl text-white">{weddingData.brideInitial}</span>
+                </div>
+              )}
             </div>
             <h3 className="font-script text-4xl text-[#2d4a3e] mb-2">{weddingData.brideName}</h3>
             <p className="font-elegant text-gray-600 text-lg mb-2">
@@ -365,10 +381,48 @@ function LoveStorySection() {
 
 // ============ GALLERY SECTION ============
 function GallerySection() {
-  const { siteSettings } = useWedding();
+  const { weddingData, siteSettings } = useWedding();
   
   if (!siteSettings.galleryEnabled) return null;
 
+  // Jika ada foto gallery yang diupload, tampilkan itu
+  if (weddingData.galleryPhotos && weddingData.galleryPhotos.length > 0) {
+    return (
+      <section className="section-padding bg-[#faf7f2]">
+        <div className="max-w-5xl mx-auto text-center">
+          <p className="font-elegant text-[#c9a96e] text-lg tracking-widest uppercase mb-2">Gallery</p>
+          <h2 className="font-display text-3xl md:text-4xl text-[#2d4a3e] mb-4">Momen Berharga</h2>
+          <div className="ornament-divider mb-12">
+            <span className="text-[#c9a96e]">✦</span>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {weddingData.galleryPhotos.map((photo) => (
+              <div
+                key={photo.id}
+                className="aspect-square rounded-xl overflow-hidden hover:scale-105 transition-transform duration-500 cursor-pointer shadow-lg relative group"
+              >
+                <img 
+                  src={photo.dataUrl} 
+                  alt={photo.caption}
+                  className="w-full h-full object-cover"
+                />
+                {photo.caption && (
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-end justify-center p-4">
+                    <p className="text-white text-sm font-elegant opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      {photo.caption}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Fallback: tampilkan placeholder jika belum ada foto
   const photos = [
     { gradient: 'from-[#2d4a3e] to-[#4a7a6a]', label: 'Pre-wedding 1' },
     { gradient: 'from-[#c9a96e] to-[#e8d5a3]', label: 'Pre-wedding 2' },
