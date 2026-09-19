@@ -24,6 +24,16 @@ export interface WeddingData {
   closingText: string;
   language: 'id' | 'en';
   religion: 'islam' | 'kristen' | 'hindu' | 'buddha' | 'konghucu' | 'universal';
+  groomPhoto: string;
+  bridePhoto: string;
+  galleryPhotos: GalleryPhoto[];
+}
+
+export interface GalleryPhoto {
+  id: string;
+  dataUrl: string;
+  caption: string;
+  createdAt: string;
 }
 
 export interface Guest {
@@ -112,6 +122,9 @@ const defaultWeddingData: WeddingData = {
   closingText: 'Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu.',
   language: 'id',
   religion: 'islam',
+  groomPhoto: '',
+  bridePhoto: '',
+  galleryPhotos: [],
 };
 
 const defaultGuests: Guest[] = [

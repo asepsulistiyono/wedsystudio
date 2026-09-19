@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { useWedding } from '../context/WeddingContext';
+import { useState, useRef } from 'react';
+import { useWedding, WeddingData, GalleryPhoto } from '../context/WeddingContext';
 import { getReligiousContent } from '../utils/translations';
+import { compressImage, PROFILE_OPTIONS, GALLERY_OPTIONS, getDataUrlSize, formatFileSize } from '../utils/imageCompressor';
 
 interface AdminDashboardProps {
   navigate: (path: string) => void;
@@ -8,7 +9,7 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ navigate }: AdminDashboardProps) {
   const { weddingData, setWeddingData, guests, siteSettings, currentUser, logout } = useWedding();
-  const [activeTab, setActiveTab] = useState<'overview' | 'couple' | 'event' | 'content' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'couple' | 'photos' | 'event' | 'content' | 'settings'>('overview');
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(weddingData);
 
@@ -83,6 +84,7 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
           {[
             { id: 'overview', label: 'Overview' },
             { id: 'couple', label: 'Data Mempelai' },
+            { id: 'photos', label: '📸 Foto' },
             { id: 'event', label: 'Data Acara' },
             { id: 'content', label: 'Konten' },
             { id: 'settings', label: '⚙️ Bahasa & Agama' },
@@ -551,6 +553,14 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
           </div>
         )}
 
+        {/* Photos Tab */}
+        {activeTab === 'photos' && (
+          <PhotosTab 
+            weddingData={weddingData} 
+            setWeddingData={setWeddingData} 
+          />
+        )}
+
         {/* Content Tab */}
         {activeTab === 'content' && (
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -760,6 +770,319 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
           </div>
         )}
       </main>
+    </div>
+  );
+}
+
+// ============ PHOTOS TAB COMPONENT ============
+function PhotosTab({ weddingData, setWeddingData }: { weddingData: WeddingData; setWeddingData: (data: WeddingData) => void }) {
+  const groomInputRef = useRef<HTMLInputElement>(null);
+  const brideInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState<'groom' | 'bride' | 'gallery' | null>(null);
+  const [newCaption, setNewCaption] = useState('');
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const showMessage = (type: 'success' | 'error', text: string) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage(null), 3000);
+  };
+
+  const handleProfileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'groom' | 'bride') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      showMessage('error', 'Ukuran file terlalu besar! Maksimal 10MB sebelum kompresi.');
+      return;
+    }
+
+    setUploading(type);
+    try {
+      const compressed = await compressImage(file, PROFILE_OPTIONS);
+      const size = getDataUrlSize(compressed);
+      
+      if (type === 'groom') {
+        setWeddingData({ ...weddingData, groomPhoto: compressed });
+      } else {
+        setWeddingData({ ...weddingData, bridePhoto: compressed });
+      }
+      
+      showMessage('success', `Foto ${type === 'groom' ? 'mempelai pria' : 'mempelai wanita'} berhasil diupload! (${formatFileSize(size)})`);
+    } catch (err) {
+      showMessage('error', 'Gagal mengupload foto. Silakan coba lagi.');
+    }
+    setUploading(null);
+    e.target.value = '';
+  };
+
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading('gallery');
+    try {
+      const newPhotos: GalleryPhoto[] = [];
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.size > 10 * 1024 * 1024) {
+          continue; // Skip file yang terlalu besar
+        }
+        
+        const compressed = await compressImage(file, GALLERY_OPTIONS);
+        newPhotos.push({
+          id: Date.now().toString() + i,
+          dataUrl: compressed,
+          caption: '',
+          createdAt: new Date().toISOString(),
+        });
+      }
+      
+      setWeddingData({ 
+        ...weddingData, 
+        galleryPhotos: [...weddingData.galleryPhotos, ...newPhotos] 
+      });
+      
+      const totalSize = newPhotos.reduce((sum, p) => sum + getDataUrlSize(p.dataUrl), 0);
+      showMessage('success', `${newPhotos.length} foto berhasil diupload! (Total: ${formatFileSize(totalSize)})`);
+    } catch (err) {
+      showMessage('error', 'Gagal mengupload foto. Silakan coba lagi.');
+    }
+    setUploading(null);
+    e.target.value = '';
+  };
+
+  const deleteGalleryPhoto = (id: string) => {
+    if (confirm('Hapus foto ini dari galeri?')) {
+      setWeddingData({
+        ...weddingData,
+        galleryPhotos: weddingData.galleryPhotos.filter(p => p.id !== id),
+      });
+      showMessage('success', 'Foto berhasil dihapus');
+    }
+  };
+
+  const updateGalleryCaption = (id: string, caption: string) => {
+    setWeddingData({
+      ...weddingData,
+      galleryPhotos: weddingData.galleryPhotos.map(p => p.id === id ? { ...p, caption } : p),
+    });
+  };
+
+  const removeProfilePhoto = (type: 'groom' | 'bride') => {
+    if (type === 'groom') {
+      setWeddingData({ ...weddingData, groomPhoto: '' });
+    } else {
+      setWeddingData({ ...weddingData, bridePhoto: '' });
+    }
+    showMessage('success', 'Foto berhasil dihapus');
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Message */}
+      {message && (
+        <div className={`p-4 rounded-lg ${message.type === 'success' ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-red-50 border border-red-200 text-red-700'}`}>
+          {message.text}
+        </div>
+      )}
+
+      {/* Profile Photos */}
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h3 className="text-lg font-bold text-gray-800 mb-2">Foto Mempelai</h3>
+        <p className="text-sm text-gray-500 mb-6">
+          Upload foto profil mempelai. Foto akan dikompresi otomatis (max 400x400px, kualitas 60%).
+        </p>
+
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Groom Photo */}
+          <div className="text-center">
+            <h4 className="font-medium text-[#2d4a3e] mb-4">Mempelai Pria</h4>
+            <div className="w-40 h-40 mx-auto mb-4 rounded-full overflow-hidden border-4 border-[#c9a96e] shadow-lg bg-gray-100">
+              {weddingData.groomPhoto ? (
+                <img src={weddingData.groomPhoto} alt="Groom" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                  <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+              )}
+            </div>
+            <input
+              ref={groomInputRef}
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleProfileUpload(e, 'groom')}
+              className="hidden"
+            />
+            <div className="flex gap-2 justify-center">
+              <button
+                onClick={() => groomInputRef.current?.click()}
+                disabled={uploading === 'groom'}
+                className="px-4 py-2 bg-[#2d4a3e] text-white rounded-lg text-sm hover:bg-[#1a3a2e] transition-colors disabled:opacity-50"
+              >
+                {uploading === 'groom' ? 'Mengupload...' : weddingData.groomPhoto ? 'Ganti Foto' : 'Upload Foto'}
+              </button>
+              {weddingData.groomPhoto && (
+                <button
+                  onClick={() => removeProfilePhoto('groom')}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 transition-colors"
+                >
+                  Hapus
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Bride Photo */}
+          <div className="text-center">
+            <h4 className="font-medium text-[#2d4a3e] mb-4">Mempelai Wanita</h4>
+            <div className="w-40 h-40 mx-auto mb-4 rounded-full overflow-hidden border-4 border-[#c9a96e] shadow-lg bg-gray-100">
+              {weddingData.bridePhoto ? (
+                <img src={weddingData.bridePhoto} alt="Bride" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                  <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+              )}
+            </div>
+            <input
+              ref={brideInputRef}
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleProfileUpload(e, 'bride')}
+              className="hidden"
+            />
+            <div className="flex gap-2 justify-center">
+              <button
+                onClick={() => brideInputRef.current?.click()}
+                disabled={uploading === 'bride'}
+                className="px-4 py-2 bg-[#2d4a3e] text-white rounded-lg text-sm hover:bg-[#1a3a2e] transition-colors disabled:opacity-50"
+              >
+                {uploading === 'bride' ? 'Mengupload...' : weddingData.bridePhoto ? 'Ganti Foto' : 'Upload Foto'}
+              </button>
+              {weddingData.bridePhoto && (
+                <button
+                  onClick={() => removeProfilePhoto('bride')}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 transition-colors"
+                >
+                  Hapus
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Gallery Photos */}
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-lg font-bold text-gray-800">Galeri Foto</h3>
+          <span className="text-sm text-gray-500">
+            {weddingData.galleryPhotos.length} foto
+          </span>
+        </div>
+        <p className="text-sm text-gray-500 mb-6">
+          Upload foto pre-wedding atau momen lainnya. Foto akan dikompresi otomatis (max 800x800px, kualitas 55%).
+        </p>
+
+        {/* Upload Button */}
+        <input
+          ref={galleryInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleGalleryUpload}
+          className="hidden"
+        />
+        <button
+          onClick={() => galleryInputRef.current?.click()}
+          disabled={uploading === 'gallery'}
+          className="mb-6 px-6 py-3 bg-[#2d4a3e] text-white rounded-lg text-sm hover:bg-[#1a3a2e] transition-colors disabled:opacity-50 flex items-center gap-2"
+        >
+          {uploading === 'gallery' ? (
+            <>
+              <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Mengupload...
+            </>
+          ) : (
+            <>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              Upload Foto Galeri (Bisa Multiple)
+            </>
+          )}
+        </button>
+
+        {/* Gallery Grid */}
+        {weddingData.galleryPhotos.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {weddingData.galleryPhotos.map((photo) => (
+              <div key={photo.id} className="relative group">
+                <div className="aspect-square rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                  <img src={photo.dataUrl} alt={photo.caption} className="w-full h-full object-cover" />
+                </div>
+                <input
+                  type="text"
+                  value={photo.caption}
+                  onChange={(e) => updateGalleryCaption(photo.id, e.target.value)}
+                  placeholder="Caption..."
+                  className="mt-2 w-full px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:border-[#2d4a3e]"
+                />
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => deleteGalleryPhoto(photo.id)}
+                    className="p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  {formatFileSize(getDataUrlSize(photo.dataUrl))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+            <svg className="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <p className="text-gray-500">Belum ada foto di galeri</p>
+            <p className="text-sm text-gray-400 mt-1">Klik tombol upload untuk menambahkan foto</p>
+          </div>
+        )}
+      </div>
+
+      {/* Storage Info */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h4 className="font-medium text-blue-800 mb-2 flex items-center gap-2">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Info Kompresi
+        </h4>
+        <div className="text-sm text-blue-700 space-y-1">
+          <p>• Foto profil: max 400x400px, kualitas JPEG 60%</p>
+          <p>• Foto galeri: max 800x800px, kualitas JPEG 55%</p>
+          <p>• Semua foto dikompresi otomatis untuk menghemat storage</p>
+          <p>• Total ukuran foto saat ini: {formatFileSize(
+            (weddingData.groomPhoto ? getDataUrlSize(weddingData.groomPhoto) : 0) +
+            (weddingData.bridePhoto ? getDataUrlSize(weddingData.bridePhoto) : 0) +
+            weddingData.galleryPhotos.reduce((sum, p) => sum + getDataUrlSize(p.dataUrl), 0)
+          )}</p>
+        </div>
+      </div>
     </div>
   );
 }
