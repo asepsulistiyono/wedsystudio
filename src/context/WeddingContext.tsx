@@ -203,18 +203,37 @@ const WeddingContext = createContext<WeddingContextType | undefined>(undefined);
 
 export function WeddingProvider({ children }: { children: ReactNode }) {
   const [weddingData, setWeddingData] = useState<WeddingData>(() => {
-    const saved = localStorage.getItem('weddingData');
-    return saved ? JSON.parse(saved) : defaultWeddingData;
+    try {
+      const saved = localStorage.getItem('weddingData');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Ensure galleryPhotos exists
+        return { ...defaultWeddingData, ...parsed, galleryPhotos: parsed.galleryPhotos || [] };
+      }
+    } catch (e) {
+      console.error('Error parsing weddingData:', e);
+    }
+    return defaultWeddingData;
   });
 
   const [guests, setGuests] = useState<Guest[]>(() => {
-    const saved = localStorage.getItem('guests');
-    return saved ? JSON.parse(saved) : defaultGuests;
+    try {
+      const saved = localStorage.getItem('guests');
+      return saved ? JSON.parse(saved) : defaultGuests;
+    } catch (e) {
+      console.error('Error parsing guests:', e);
+      return defaultGuests;
+    }
   });
 
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => {
-    const saved = localStorage.getItem('siteSettings');
-    return saved ? JSON.parse(saved) : defaultSiteSettings;
+    try {
+      const saved = localStorage.getItem('siteSettings');
+      return saved ? JSON.parse(saved) : defaultSiteSettings;
+    } catch (e) {
+      console.error('Error parsing siteSettings:', e);
+      return defaultSiteSettings;
+    }
   });
 
   const adminCredentials: AdminCredentials = {
