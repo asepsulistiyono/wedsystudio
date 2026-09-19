@@ -6,7 +6,7 @@ interface SuperAdminProps {
 }
 
 export default function SuperAdmin({ navigate }: SuperAdminProps) {
-  const { siteSettings, setSiteSettings, weddingData, guests, adminContact, setAdminContact, adminCredentials, superAdminCredentials } = useWedding();
+  const { siteSettings, setSiteSettings, weddingData, guests, adminContact, setAdminContact, adminCredentials, superAdminCredentials, currentUser, logout } = useWedding();
   const [editSettings, setEditSettings] = useState(siteSettings);
   const [isEditing, setIsEditing] = useState(false);
   const [editContact, setEditContact] = useState(adminContact);
@@ -24,6 +24,11 @@ export default function SuperAdmin({ navigate }: SuperAdminProps) {
       localStorage.clear();
       window.location.reload();
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   const analytics = {
@@ -49,7 +54,9 @@ export default function SuperAdmin({ navigate }: SuperAdminProps) {
                 <h1 className="text-xl font-bold text-white">Super Admin Panel</h1>
                 <span className="px-2 py-0.5 bg-purple-500 text-white text-xs rounded-full">PRO</span>
               </div>
-              <p className="text-sm text-purple-200">Kelola seluruh website undangan</p>
+              <p className="text-sm text-purple-200">
+                Kelola seluruh website undangan • Login sebagai: <span className="font-semibold capitalize">{currentUser?.role}</span>
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -71,6 +78,12 @@ export default function SuperAdmin({ navigate }: SuperAdminProps) {
             >
               Lihat Undangan
             </a>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Logout
+            </button>
           </div>
         </div>
       </header>

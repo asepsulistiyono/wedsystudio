@@ -11,27 +11,23 @@ export default function LoginPage({ navigate }: LoginPageProps) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const { adminContact } = useWedding();
-
-  const ADMIN_CREDENTIALS = { username: 'admin', password: 'admin123' };
-  const SUPERADMIN_CREDENTIALS = { username: 'superadmin', password: 'super123' };
+  const { adminContact, login } = useWedding();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
-    if (role === 'admin') {
-      if (username.trim() === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+    const result = login(username.trim(), password);
+    
+    if (result.success) {
+      // Navigate based on role
+      if (result.role === 'admin') {
         navigate('/admin');
-      } else {
-        setError('Username atau password salah!');
-      }
-    } else if (role === 'superadmin') {
-      if (username.trim() === SUPERADMIN_CREDENTIALS.username && password === SUPERADMIN_CREDENTIALS.password) {
+      } else if (result.role === 'superadmin') {
         navigate('/superadmin');
-      } else {
-        setError('Username atau password salah!');
       }
+    } else {
+      setError(result.message || 'Login gagal!');
     }
   };
 
