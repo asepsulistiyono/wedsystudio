@@ -3,9 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useWedding } from '../context/WeddingContext';
 
 export default function SuperAdmin() {
-  const { siteSettings, setSiteSettings, weddingData, guests } = useWedding();
+  const { siteSettings, setSiteSettings, weddingData, guests, adminContact, setAdminContact, adminCredentials, superAdminCredentials } = useWedding();
   const [editSettings, setEditSettings] = useState(siteSettings);
   const [isEditing, setIsEditing] = useState(false);
+  const [editContact, setEditContact] = useState(adminContact);
+  const [isEditingContact, setIsEditingContact] = useState(false);
   const [activeTab, setActiveTab] = useState<'settings' | 'users' | 'analytics' | 'system'>('settings');
   const navigate = useNavigate();
 
@@ -294,14 +296,101 @@ export default function SuperAdmin() {
 
               <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                 <h4 className="text-sm font-medium text-gray-700 mb-2">Informasi Login</h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Admin Password:</span>
-                    <code className="bg-gray-200 px-2 py-0.5 rounded text-gray-700">admin123</code>
+                <div className="space-y-3 text-sm">
+                  <div className="p-3 bg-white rounded-lg border border-gray-200">
+                    <p className="font-medium text-gray-700 mb-1">👤 Admin</p>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Username:</span>
+                      <code className="bg-gray-100 px-2 py-0.5 rounded text-gray-700">{adminCredentials.username}</code>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-gray-500">Password:</span>
+                      <code className="bg-gray-100 px-2 py-0.5 rounded text-gray-700">{adminCredentials.password}</code>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Super Admin Password:</span>
-                    <code className="bg-gray-200 px-2 py-0.5 rounded text-gray-700">superadmin123</code>
+                  <div className="p-3 bg-white rounded-lg border border-gray-200">
+                    <p className="font-medium text-gray-700 mb-1">👑 Super Admin</p>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Username:</span>
+                      <code className="bg-gray-100 px-2 py-0.5 rounded text-gray-700">{superAdminCredentials.username}</code>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-gray-500">Password:</span>
+                      <code className="bg-gray-100 px-2 py-0.5 rounded text-gray-700">{superAdminCredentials.password}</code>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Admin Contact for Login Page */}
+              <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-100">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-medium text-green-800">📱 Kontak Admin (untuk halaman login)</h4>
+                  {!isEditingContact ? (
+                    <button
+                      onClick={() => setIsEditingContact(true)}
+                      className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
+                    >
+                      Edit
+                    </button>
+                  ) : (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => { setEditContact(adminContact); setIsEditingContact(false); }}
+                        className="px-3 py-1 border border-gray-200 text-gray-600 rounded text-xs hover:bg-gray-50 transition-colors"
+                      >
+                        Batal
+                      </button>
+                      <button
+                        onClick={() => { setAdminContact(editContact); setIsEditingContact(false); }}
+                        className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
+                      >
+                        Simpan
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-xs text-gray-600 block mb-1">No. WhatsApp Admin</label>
+                    {isEditingContact ? (
+                      <input
+                        type="tel"
+                        value={editContact.phone}
+                        onChange={(e) => setEditContact({...editContact, phone: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-green-500"
+                        placeholder="628xxxxxxxxxx"
+                      />
+                    ) : (
+                      <p className="text-sm text-gray-800">{adminContact.phone}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-600 block mb-1">Nama Admin</label>
+                    {isEditingContact ? (
+                      <input
+                        type="text"
+                        value={editContact.name}
+                        onChange={(e) => setEditContact({...editContact, name: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-green-500"
+                        placeholder="Nama admin"
+                      />
+                    ) : (
+                      <p className="text-sm text-gray-800">{adminContact.name}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-600 block mb-1">Pesan Default WhatsApp</label>
+                    {isEditingContact ? (
+                      <textarea
+                        rows={2}
+                        value={editContact.message}
+                        onChange={(e) => setEditContact({...editContact, message: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-green-500 resize-none"
+                      />
+                    ) : (
+                      <p className="text-sm text-gray-800 italic">"{adminContact.message}"</p>
+                    )}
                   </div>
                 </div>
               </div>
