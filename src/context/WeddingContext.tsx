@@ -63,8 +63,11 @@ export interface SiteSettings {
 }
 
 export interface AdminCredentials {
+  id: string;
   username: string;
   password: string;
+  name: string;
+  createdAt: string;
 }
 
 export interface AdminContact {
@@ -90,15 +93,17 @@ interface WeddingContextType {
   sendAllWhatsApp: () => void;
   siteSettings: SiteSettings;
   setSiteSettings: (settings: SiteSettings) => void;
-  adminCredentials: AdminCredentials;
+  admins: AdminCredentials[];
   superAdminCredentials: AdminCredentials;
   adminContact: AdminContact;
   setAdminContact: (contact: AdminContact) => void;
   currentUser: CurrentUser | null;
   login: (username: string, password: string) => { success: boolean; role?: 'admin' | 'superadmin'; message?: string };
   logout: () => void;
-  resetAdminPassword: () => void;
-  deleteAdmin: () => void;
+  addAdmin: (username: string, password: string, name: string) => { success: boolean; message?: string };
+  updateAdmin: (id: string, updates: Partial<AdminCredentials>) => void;
+  deleteAdmin: (id: string) => void;
+  resetAdminPassword: (id: string) => void;
 }
 
 const defaultWeddingData: WeddingData = {
@@ -238,32 +243,76 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
     }
   });
 
-  const [adminCredentials, setAdminCredentials] = useState<AdminCredentials>(() => {
-    const saved = localStorage.getItem('adminCredentials');
-    return saved ? JSON.parse(saved) : {
+  const [admins, setAdmins] = useState<AdminCredentials[]>(() => {
+    try {
+      const saved = localStorage.getItem('admins');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Error parsing admins:', e);
+    }
+    // Default admin
+    return [{
+      id: '1',
       username: 'admin',
       password: 'admin123',
-    };
+      name: 'Admin',
+      createdAt: new Date().toISOString(),
+    }];
   });
 
   const superAdminCredentials: AdminCredentials = {
+    id: 'superadmin',
     username: 'superadmin',
     password: 'super123',
+    name: 'Super Admin',
+    createdAt: new Date().toISOString(),
   };
 
-  const updateAdminCredentials = (credentials: AdminCredentials) => {
-    setAdminCredentials(credentials);
-    localStorage.setItem('adminCredentials', JSON.stringify(credentials));
+  const updateAdmins = (newAdmins: AdminCredentials[]) => {
+    setAdmins(newAdmins);
+    localStorage.setItem('admins', JSON.stringify(newAdmins));
   };
 
-  const resetAdminPassword = () => {
-    const newCredentials = { ...adminCredentials, password: 'admin123' };
-    updateAdminCredentials(newCredentials);
+  const addAdmin = (username: string, password: string, name: string): { success: boolean; message?: string } => {
+    // Check if username already exists
+    if (admins.some(admin => admin.username === username)) {
+      return { success: false, message: 'Username sudah digunakan' };
+    }
+    if (username === superAdminCredentials.username) {
+      return { success: false, message: 'Username tidak boleh sama dengan superadmin' };
+    }
+    
+    const newAdmin: AdminCredentials = {
+      id: Date.now().toString(),
+      username,
+      password,
+      name,
+      createdAt: new Date().toISOString(),
+    };
+    
+    updateAdmins([...admins, newAdmin]);
+    return { success: true, message: 'Admin berhasil ditambahkan' };
   };
 
-  const deleteAdmin = () => {
-    localStorage.removeItem('adminCredentials');
-    setAdminCredentials({ username: '', password: '' });
+  const updateAdmin = (id: string, updates: Partial<AdminCredentials>) => {
+    const updatedAdmins = admins.map(admin => 
+      admin.id === id ? { ...admin, ...updates } : admin
+    );
+    updateAdmins(updatedAdmins);
+  };
+
+  const deleteAdmin = (id: string) => {
+    const updatedAdmins = admins.filter(admin => admin.id !== id);
+    updateAdmins(updatedAdmins);
+  };
+
+  const resetAdminPassword = (id: string) => {
+    const updatedAdmins = admins.map(admin => 
+      admin.id === id ? { ...admin, password: 'admin123' } : admin
+    );
+    updateAdmins(updatedAdmins);
   };
 
   const [adminContact, setAdminContact] = useState<AdminContact>(() => {
@@ -287,19 +336,24 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
   });
 
   const login = (username: string, password: string): { success: boolean; role?: 'admin' | 'superadmin'; message?: string } => {
-    if (username === adminCredentials.username && password === adminCredentials.password) {
-      const user: CurrentUser = { username, role: 'admin' };
-      setCurrentUser(user);
-      sessionStorage.setItem('currentUser', JSON.stringify(user));
-      return { success: true, role: 'admin' };
-    } else if (username === superAdminCredentials.username && password === superAdminCredentials.password) {
+    // Check superadmin first
+    if (username === superAdminCredentials.username && password === superAdminCredentials.password) {
       const user: CurrentUser = { username, role: 'superadmin' };
       setCurrentUser(user);
       sessionStorage.setItem('currentUser', JSON.stringify(user));
       return { success: true, role: 'superadmin' };
-    } else {
-      return { success: false, message: 'Username atau password salah!' };
     }
+    
+    // Check all admins
+    const admin = admins.find(a => a.username === username && a.password === password);
+    if (admin) {
+      const user: CurrentUser = { username, role: 'admin' };
+      setCurrentUser(user);
+      sessionStorage.setItem('currentUser', JSON.stringify(user));
+      return { success: true, role: 'admin' };
+    }
+    
+    return { success: false, message: 'Username atau password salah!' };
   };
 
   const logout = () => {
@@ -410,15 +464,17 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh
         sendAllWhatsApp,
         siteSettings,
         setSiteSettings: updateSiteSettings,
-        adminCredentials,
+        admins,
         superAdminCredentials,
         adminContact,
         setAdminContact: updateAdminContact,
         currentUser,
         login,
         logout,
-        resetAdminPassword,
+        addAdmin,
+        updateAdmin,
         deleteAdmin,
+        resetAdminPassword,
       }}
     >
       {children}
