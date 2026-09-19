@@ -8,25 +8,41 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const { adminCredentials, superAdminCredentials, adminContact } = useWedding();
+  const { adminContact } = useWedding();
   const navigate = useNavigate();
+
+  // Hardcoded credentials for simplicity
+  const ADMIN_CREDENTIALS = {
+    username: 'admin',
+    password: 'admin123',
+  };
+
+  const SUPERADMIN_CREDENTIALS = {
+    username: 'superadmin',
+    password: 'super123',
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    
+    console.log('Login attempt:', { role, username, password });
     
     if (role === 'admin') {
-      if (username === adminCredentials.username && password === adminCredentials.password) {
+      if (username.trim() === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+        console.log('Admin login success');
         navigate('/admin');
       } else {
+        console.log('Admin login failed');
         setError('Username atau password salah!');
-        setTimeout(() => setError(''), 3000);
       }
     } else if (role === 'superadmin') {
-      if (username === superAdminCredentials.username && password === superAdminCredentials.password) {
+      if (username.trim() === SUPERADMIN_CREDENTIALS.username && password === SUPERADMIN_CREDENTIALS.password) {
+        console.log('Superadmin login success');
         navigate('/superadmin');
       } else {
+        console.log('Superadmin login failed');
         setError('Username atau password salah!');
-        setTimeout(() => setError(''), 3000);
       }
     }
   };
@@ -47,6 +63,7 @@ export default function LoginPage() {
           {/* Role Toggle */}
           <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
             <button
+              type="button"
               onClick={() => { setRole('admin'); setError(''); setUsername(''); setPassword(''); }}
               className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${
                 role === 'admin' ? 'bg-white shadow text-[#2d4a3e]' : 'text-gray-500'
@@ -55,6 +72,7 @@ export default function LoginPage() {
               Admin
             </button>
             <button
+              type="button"
               onClick={() => { setRole('superadmin'); setError(''); setUsername(''); setPassword(''); }}
               className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${
                 role === 'superadmin' ? 'bg-white shadow text-purple-700' : 'text-gray-500'
