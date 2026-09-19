@@ -96,9 +96,7 @@ function HeroSection() {
           {religiousContent.opening}
         </p>
         <p className="font-elegant text-white/80 text-base md:text-lg mb-8 max-w-md mx-auto">
-          {lang === 'id' 
-            ? 'Dengan memohon rahmat dan ridho Tuhan Yang Maha Esa, kami bermaksud menyelenggarakan pernikahan putra-putri kami'
-            : 'With the blessings of the Almighty God, we intend to hold the wedding ceremony of our children'}
+          {t('withBlessings', lang)}
         </p>
         
         <div className="mb-8">
@@ -139,7 +137,7 @@ function CoupleSection() {
     <section className="section-padding bg-[#faf7f2] leaf-pattern">
       <div className="max-w-4xl mx-auto text-center">
         <p className="font-elegant text-[#c9a96e] text-lg tracking-widest uppercase mb-2">
-          {lang === 'id' ? 'Mempelai' : 'The Couple'}
+          {t('theCouple', lang)}
         </p>
         <div className="ornament-divider mb-8">
           <span className="text-[#c9a96e]">✦</span>
@@ -166,7 +164,7 @@ function CoupleSection() {
             </div>
             <h3 className="font-script text-4xl text-[#2d4a3e] mb-2">{weddingData.groomName}</h3>
             <p className="font-elegant text-gray-600 text-lg mb-2">
-              {lang === 'id' ? 'Putra dari' : 'Son of'}
+              {t('sonOf', lang)}
             </p>
             <p className="font-display text-gray-700">{weddingData.groomFather}</p>
             <p className="font-display text-gray-500">&</p>
@@ -189,7 +187,7 @@ function CoupleSection() {
             </div>
             <h3 className="font-script text-4xl text-[#2d4a3e] mb-2">{weddingData.brideName}</h3>
             <p className="font-elegant text-gray-600 text-lg mb-2">
-              {lang === 'id' ? 'Putri dari' : 'Daughter of'}
+              {t('daughterOf', lang)}
             </p>
             <p className="font-display text-gray-700">{weddingData.brideFather}</p>
             <p className="font-display text-gray-500">&</p>
@@ -204,6 +202,7 @@ function CoupleSection() {
 // ============ COUNTDOWN SECTION ============
 function CountdownSection() {
   const { weddingData, siteSettings } = useWedding();
+  const lang = weddingData.language;
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
@@ -231,15 +230,15 @@ function CountdownSection() {
   return (
     <section className="py-20 px-6" style={{ background: 'linear-gradient(135deg, #2d4a3e 0%, #1a3a2e 100%)' }}>
       <div className="max-w-4xl mx-auto text-center">
-        <p className="font-elegant text-[#e8d5a3] text-lg tracking-widest uppercase mb-2">Countdown</p>
-        <h2 className="font-display text-3xl md:text-4xl text-white mb-12">Menghitung Hari</h2>
+        <p className="font-elegant text-[#e8d5a3] text-lg tracking-widest uppercase mb-2">{t('countdown', lang)}</p>
+        <h2 className="font-display text-3xl md:text-4xl text-white mb-12">{t('countingDays', lang)}</h2>
         
         <div className="grid grid-cols-4 gap-4 md:gap-8 max-w-2xl mx-auto">
           {[
-            { value: timeLeft.days, label: 'Hari' },
-            { value: timeLeft.hours, label: 'Jam' },
-            { value: timeLeft.minutes, label: 'Menit' },
-            { value: timeLeft.seconds, label: 'Detik' },
+            { value: timeLeft.days, label: t('days', lang) },
+            { value: timeLeft.hours, label: t('hours', lang) },
+            { value: timeLeft.minutes, label: t('minutes', lang) },
+            { value: timeLeft.seconds, label: t('seconds', lang) },
           ].map((item, idx) => (
             <div key={idx} className="glass-card p-4 md:p-6 text-center">
               <span className="font-display text-3xl md:text-5xl text-[#2d4a3e] font-bold">
@@ -257,7 +256,8 @@ function CountdownSection() {
 // ============ EVENT SECTION ============
 function EventSection() {
   const { weddingData } = useWedding();
-  const formattedDate = new Date(weddingData.weddingDate).toLocaleDateString('id-ID', {
+  const lang = weddingData.language;
+  const formattedDate = new Date(weddingData.weddingDate).toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -267,8 +267,8 @@ function EventSection() {
   return (
     <section className="section-padding bg-[#faf7f2]">
       <div className="max-w-4xl mx-auto text-center">
-        <p className="font-elegant text-[#c9a96e] text-lg tracking-widest uppercase mb-2">Waktu & Tempat</p>
-        <h2 className="font-display text-3xl md:text-4xl text-[#2d4a3e] mb-4">Acara Pernikahan</h2>
+        <p className="font-elegant text-[#c9a96e] text-lg tracking-widest uppercase mb-2">{t('timeAndPlace', lang)}</p>
+        <h2 className="font-display text-3xl md:text-4xl text-[#2d4a3e] mb-4">{t('weddingEvent', lang)}</h2>
         <div className="ornament-divider mb-12">
           <span className="text-[#c9a96e]">✦</span>
         </div>
@@ -280,13 +280,13 @@ function EventSection() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
             </div>
-            <h3 className="font-display text-2xl text-[#2d4a3e] mb-4">Akad Nikah</h3>
+            <h3 className="font-display text-2xl text-[#2d4a3e] mb-4">{t('akadNikah', lang)}</h3>
             <div className="space-y-3">
               <p className="font-elegant text-gray-600 text-lg">
                 <span className="font-semibold text-[#2d4a3e]">{formattedDate}</span>
               </p>
               <p className="font-elegant text-gray-600 text-lg">
-                Pukul <span className="font-semibold text-[#2d4a3e]">{weddingData.akadTime}</span>
+                {t('at', lang)} <span className="font-semibold text-[#2d4a3e]">{weddingData.akadTime}</span>
               </p>
               <div className="pt-3 border-t border-[#c9a96e]/30">
                 <p className="font-display text-[#2d4a3e] font-semibold">{weddingData.akadVenue}</p>
@@ -301,13 +301,13 @@ function EventSection() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 15.96V19a1 1 0 01-1.09.99A10 10 0 013 10.09V9a1 1 0 011-1h3m14 7.97V9a1 1 0 00-1-1h-3m-8 0V5a2 2 0 012-2h2a2 2 0 012 2v3m-6 0h6" />
               </svg>
             </div>
-            <h3 className="font-display text-2xl text-[#2d4a3e] mb-4">Resepsi</h3>
+            <h3 className="font-display text-2xl text-[#2d4a3e] mb-4">{t('reception', lang)}</h3>
             <div className="space-y-3">
               <p className="font-elegant text-gray-600 text-lg">
                 <span className="font-semibold text-[#2d4a3e]">{formattedDate}</span>
               </p>
               <p className="font-elegant text-gray-600 text-lg">
-                Pukul <span className="font-semibold text-[#2d4a3e]">{weddingData.receptionTime}</span>
+                {t('at', lang)} <span className="font-semibold text-[#2d4a3e]">{weddingData.receptionTime}</span>
               </p>
               <div className="pt-3 border-t border-[#c9a96e]/30">
                 <p className="font-display text-[#2d4a3e] font-semibold">{weddingData.receptionVenue}</p>
@@ -328,7 +328,7 @@ function EventSection() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            Lihat Lokasi
+            {t('seeLocation', lang)}
           </a>
         </div>
       </div>
@@ -338,23 +338,24 @@ function EventSection() {
 
 // ============ LOVE STORY SECTION ============
 function LoveStorySection() {
-  const { siteSettings } = useWedding();
+  const { weddingData, siteSettings } = useWedding();
+  const lang = weddingData.language;
   
   if (!siteSettings.storyEnabled) return null;
 
   const stories = [
-    { year: '2019', title: 'Pertama Bertemu', desc: 'Kami pertama kali bertemu di sebuah acara kampus.' },
-    { year: '2020', title: 'Mulai Dekat', desc: 'Dari teman menjadi sahabat, saling mendukung dalam setiap langkah.' },
-    { year: '2022', title: 'Menjalin Hubungan', desc: 'Dengan bismillah, kami memutuskan untuk menjalin hubungan yang lebih serius.' },
-    { year: '2024', title: 'Lamaran', desc: 'Alhamdulillah, dengan penuh keberkahan kami melangsungkan acara lamaran.' },
-    { year: '2025', title: 'Pernikahan', desc: 'Insya Allah, kami akan menyempurnakan separuh agama bersama.' },
+    { year: '2019', title: t('firstMeet', lang), desc: t('firstMeetDesc', lang) },
+    { year: '2020', title: t('gettingCloser', lang), desc: t('gettingCloserDesc', lang) },
+    { year: '2022', title: t('inRelationship', lang), desc: t('inRelationshipDesc', lang) },
+    { year: '2024', title: t('engagement', lang), desc: t('engagementDesc', lang) },
+    { year: '2025', title: t('marriage', lang), desc: t('marriageDesc', lang) },
   ];
 
   return (
     <section className="section-padding" style={{ background: 'linear-gradient(180deg, #faf7f2 0%, #f0ebe3 100%)' }}>
       <div className="max-w-3xl mx-auto text-center">
-        <p className="font-elegant text-[#c9a96e] text-lg tracking-widest uppercase mb-2">Our Journey</p>
-        <h2 className="font-display text-3xl md:text-4xl text-[#2d4a3e] mb-4">Love Story</h2>
+        <p className="font-elegant text-[#c9a96e] text-lg tracking-widest uppercase mb-2">{t('ourJourney', lang)}</p>
+        <h2 className="font-display text-3xl md:text-4xl text-[#2d4a3e] mb-4">{t('loveStory', lang)}</h2>
         <div className="ornament-divider mb-12">
           <span className="text-[#c9a96e]">✦</span>
         </div>
@@ -382,6 +383,7 @@ function LoveStorySection() {
 // ============ GALLERY SECTION ============
 function GallerySection() {
   const { weddingData, siteSettings } = useWedding();
+  const lang = weddingData.language;
   
   if (!siteSettings.galleryEnabled) return null;
 
@@ -390,8 +392,8 @@ function GallerySection() {
     return (
       <section className="section-padding bg-[#faf7f2]">
         <div className="max-w-5xl mx-auto text-center">
-          <p className="font-elegant text-[#c9a96e] text-lg tracking-widest uppercase mb-2">Gallery</p>
-          <h2 className="font-display text-3xl md:text-4xl text-[#2d4a3e] mb-4">Momen Berharga</h2>
+          <p className="font-elegant text-[#c9a96e] text-lg tracking-widest uppercase mb-2">{t('gallery', lang)}</p>
+          <h2 className="font-display text-3xl md:text-4xl text-[#2d4a3e] mb-4">{t('preciousMoments', lang)}</h2>
           <div className="ornament-divider mb-12">
             <span className="text-[#c9a96e]">✦</span>
           </div>
@@ -435,8 +437,8 @@ function GallerySection() {
   return (
     <section className="section-padding bg-[#faf7f2]">
       <div className="max-w-5xl mx-auto text-center">
-        <p className="font-elegant text-[#c9a96e] text-lg tracking-widest uppercase mb-2">Gallery</p>
-        <h2 className="font-display text-3xl md:text-4xl text-[#2d4a3e] mb-4">Momen Berharga</h2>
+        <p className="font-elegant text-[#c9a96e] text-lg tracking-widest uppercase mb-2">{t('gallery', lang)}</p>
+        <h2 className="font-display text-3xl md:text-4xl text-[#2d4a3e] mb-4">{t('preciousMoments', lang)}</h2>
         <div className="ornament-divider mb-12">
           <span className="text-[#c9a96e]">✦</span>
         </div>
@@ -463,7 +465,8 @@ function GallerySection() {
 
 // ============ RSVP SECTION ============
 function RSVPSection() {
-  const { siteSettings } = useWedding();
+  const { weddingData, siteSettings } = useWedding();
+  const lang = weddingData.language;
   const [formData, setFormData] = useState({ name: '', attendance: 'hadir', guests: '1', message: '' });
   const [submitted, setSubmitted] = useState(false);
 
@@ -483,8 +486,8 @@ function RSVPSection() {
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
             </svg>
           </div>
-          <h3 className="font-display text-2xl text-[#2d4a3e] mb-2">Terima Kasih!</h3>
-          <p className="font-elegant text-gray-600 text-lg">Konfirmasi Anda telah kami terima.</p>
+          <h3 className="font-display text-2xl text-[#2d4a3e] mb-2">{t('thankYou', lang)}</h3>
+          <p className="font-elegant text-gray-600 text-lg">{t('confirmationReceived', lang)}</p>
         </div>
       </section>
     );
@@ -493,63 +496,63 @@ function RSVPSection() {
   return (
     <section className="section-padding bg-[#f0ebe3]">
       <div className="max-w-lg mx-auto text-center">
-        <p className="font-elegant text-[#c9a96e] text-lg tracking-widest uppercase mb-2">RSVP</p>
-        <h2 className="font-display text-3xl md:text-4xl text-[#2d4a3e] mb-4">Konfirmasi Kehadiran</h2>
+        <p className="font-elegant text-[#c9a96e] text-lg tracking-widest uppercase mb-2">{t('rsvp', lang)}</p>
+        <h2 className="font-display text-3xl md:text-4xl text-[#2d4a3e] mb-4">{t('confirmAttendance', lang)}</h2>
         <div className="ornament-divider mb-8">
           <span className="text-[#c9a96e]">✦</span>
         </div>
 
         <form onSubmit={handleSubmit} className="glass-card p-8 text-left space-y-5">
           <div>
-            <label className="font-elegant text-[#2d4a3e] text-sm block mb-1">Nama Lengkap</label>
+            <label className="font-elegant text-[#2d4a3e] text-sm block mb-1">{t('fullName', lang)}</label>
             <input
               type="text"
               required
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
               className="w-full px-4 py-3 rounded-lg border border-[#c9a96e]/30 focus:border-[#c9a96e] focus:outline-none bg-white/80 font-elegant"
-              placeholder="Masukkan nama Anda"
+              placeholder={t('enterName', lang)}
             />
           </div>
           <div>
-            <label className="font-elegant text-[#2d4a3e] text-sm block mb-1">Konfirmasi Kehadiran</label>
+            <label className="font-elegant text-[#2d4a3e] text-sm block mb-1">{t('attendance', lang)}</label>
             <select
               value={formData.attendance}
               onChange={(e) => setFormData({...formData, attendance: e.target.value})}
               className="w-full px-4 py-3 rounded-lg border border-[#c9a96e]/30 focus:border-[#c9a96e] focus:outline-none bg-white/80 font-elegant"
             >
-              <option value="hadir">Insya Allah Hadir</option>
-              <option value="tidak">Maaf, Tidak Bisa Hadir</option>
-              <option value="ragu">Masih Ragu</option>
+              <option value="hadir">{t('willAttend', lang)}</option>
+              <option value="tidak">{t('cannotAttend', lang)}</option>
+              <option value="ragu">{t('notSure', lang)}</option>
             </select>
           </div>
           <div>
-            <label className="font-elegant text-[#2d4a3e] text-sm block mb-1">Jumlah Tamu</label>
+            <label className="font-elegant text-[#2d4a3e] text-sm block mb-1">{t('numberOfGuests', lang)}</label>
             <select
               value={formData.guests}
               onChange={(e) => setFormData({...formData, guests: e.target.value})}
               className="w-full px-4 py-3 rounded-lg border border-[#c9a96e]/30 focus:border-[#c9a96e] focus:outline-none bg-white/80 font-elegant"
             >
-              <option value="1">1 Orang</option>
-              <option value="2">2 Orang</option>
-              <option value="3">3 Orang</option>
+              <option value="1">1 {t('person', lang)}</option>
+              <option value="2">2 {t('person', lang)}</option>
+              <option value="3">3 {t('person', lang)}</option>
             </select>
           </div>
           <div>
-            <label className="font-elegant text-[#2d4a3e] text-sm block mb-1">Ucapan & Doa</label>
+            <label className="font-elegant text-[#2d4a3e] text-sm block mb-1">{t('wishesAndPrayers', lang)}</label>
             <textarea
               value={formData.message}
               onChange={(e) => setFormData({...formData, message: e.target.value})}
               rows={4}
               className="w-full px-4 py-3 rounded-lg border border-[#c9a96e]/30 focus:border-[#c9a96e] focus:outline-none bg-white/80 font-elegant resize-none"
-              placeholder="Tulis ucapan dan doa..."
+              placeholder={t('writeWishes', lang)}
             />
           </div>
           <button
             type="submit"
             className="w-full py-3 bg-[#2d4a3e] text-white rounded-lg font-elegant text-lg hover:bg-[#1a3a2e] transition-colors duration-300"
           >
-            Kirim Konfirmasi
+            {t('sendConfirmation', lang)}
           </button>
         </form>
       </div>
@@ -559,7 +562,8 @@ function RSVPSection() {
 
 // ============ GIFT SECTION ============
 function GiftSection() {
-  const { siteSettings } = useWedding();
+  const { weddingData, siteSettings } = useWedding();
+  const lang = weddingData.language;
   const [copied, setCopied] = useState('');
 
   if (!siteSettings.giftEnabled) return null;
@@ -573,13 +577,13 @@ function GiftSection() {
   return (
     <section className="section-padding" style={{ background: 'linear-gradient(135deg, #2d4a3e 0%, #1a3a2e 100%)' }}>
       <div className="max-w-lg mx-auto text-center">
-        <p className="font-elegant text-[#e8d5a3] text-lg tracking-widest uppercase mb-2">Wedding Gift</p>
-        <h2 className="font-display text-3xl md:text-4xl text-white mb-4">Amplop Digital</h2>
+        <p className="font-elegant text-[#e8d5a3] text-lg tracking-widest uppercase mb-2">{t('weddingGift', lang)}</p>
+        <h2 className="font-display text-3xl md:text-4xl text-white mb-4">{t('digitalEnvelope', lang)}</h2>
         <div className="ornament-divider mb-6">
           <span className="text-[#c9a96e]">✦</span>
         </div>
         <p className="font-elegant text-white/70 mb-8">
-          Doa restu Anda merupakan karunia yang sangat berarti bagi kami.
+          {t('yourBlessing', lang)}
         </p>
 
         <div className="space-y-4">
@@ -591,7 +595,7 @@ function GiftSection() {
               onClick={() => copyToClipboard('1234567890', 'bca')}
               className="px-4 py-2 border border-[#c9a96e] text-[#c9a96e] rounded-full text-sm font-elegant hover:bg-[#c9a96e] hover:text-white transition-all duration-300"
             >
-              {copied === 'bca' ? '✓ Tersalin!' : 'Salin Nomor Rekening'}
+              {copied === 'bca' ? t('copied', lang) : t('copyAccountNumber', lang)}
             </button>
           </div>
           <div className="glass-card p-6">
@@ -602,7 +606,7 @@ function GiftSection() {
               onClick={() => copyToClipboard('0987654321', 'mandiri')}
               className="px-4 py-2 border border-[#c9a96e] text-[#c9a96e] rounded-full text-sm font-elegant hover:bg-[#c9a96e] hover:text-white transition-all duration-300"
             >
-              {copied === 'mandiri' ? '✓ Tersalin!' : 'Salin Nomor Rekening'}
+              {copied === 'mandiri' ? t('copied', lang) : t('copyAccountNumber', lang)}
             </button>
           </div>
         </div>
@@ -637,7 +641,7 @@ function FooterSection() {
 
         <div className="mt-12 pt-8 border-t border-white/10">
           <p className="font-elegant text-white/40 text-sm">
-            Made with 💛 for our special day
+            {t('madeWithLove', lang)}
           </p>
         </div>
       </div>

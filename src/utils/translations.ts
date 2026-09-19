@@ -188,6 +188,39 @@ export const translations: Record<string, Record<string, string>> = {
     religion: 'Agama',
     selectLanguage: 'Pilih Bahasa',
     selectReligion: 'Pilih Agama',
+    
+    // Countdown Section
+    countdown: 'Hitung Mundur',
+    countingDays: 'Menghitung Hari',
+    days: 'Hari',
+    hours: 'Jam',
+    minutes: 'Menit',
+    seconds: 'Detik',
+    
+    // Event Section
+    timeAndPlace: 'Waktu & Tempat',
+    at: 'Pukul',
+    
+    // Love Story Section
+    ourJourney: 'Perjalanan Kami',
+    loveStory: 'Kisah Cinta',
+    firstMeet: 'Pertama Bertemu',
+    firstMeetDesc: 'Kami pertama kali bertemu di sebuah acara kampus.',
+    gettingCloser: 'Mulai Dekat',
+    gettingCloserDesc: 'Dari teman menjadi sahabat, saling mendukung dalam setiap langkah.',
+    inRelationship: 'Menjalin Hubungan',
+    inRelationshipDesc: 'Dengan bismillah, kami memutuskan untuk menjalin hubungan yang lebih serius.',
+    engagement: 'Lamaran',
+    engagementDesc: 'Alhamdulillah, dengan penuh keberkahan kami melangsungkan acara lamaran.',
+    marriage: 'Pernikahan',
+    marriageDesc: 'Insya Allah, kami akan menyempurnakan separuh agama bersama.',
+    
+    // Gift Section
+    digitalEnvelope: 'Amplop Digital',
+    yourBlessing: 'Doa restu Anda merupakan karunia yang sangat berarti bagi kami.',
+    
+    // Footer
+    madeWithLove: 'Dibuat dengan 💛 untuk hari spesial kami',
   },
   en: {
     theWeddingOf: 'The Wedding Of',
@@ -261,6 +294,39 @@ export const translations: Record<string, Record<string, string>> = {
     religion: 'Religion',
     selectLanguage: 'Select Language',
     selectReligion: 'Select Religion',
+    
+    // Countdown Section
+    countdown: 'Countdown',
+    countingDays: 'Counting Days',
+    days: 'Days',
+    hours: 'Hours',
+    minutes: 'Minutes',
+    seconds: 'Seconds',
+    
+    // Event Section
+    timeAndPlace: 'Time & Place',
+    at: 'At',
+    
+    // Love Story Section
+    ourJourney: 'Our Journey',
+    loveStory: 'Love Story',
+    firstMeet: 'First Meeting',
+    firstMeetDesc: 'We first met at a campus event.',
+    gettingCloser: 'Getting Closer',
+    gettingCloserDesc: 'From friends to best friends, supporting each other in every step.',
+    inRelationship: 'In a Relationship',
+    inRelationshipDesc: 'With bismillah, we decided to start a more serious relationship.',
+    engagement: 'Engagement',
+    engagementDesc: 'Alhamdulillah, with full blessings we held the engagement ceremony.',
+    marriage: 'Marriage',
+    marriageDesc: 'Insya Allah, we will complete half of our religion together.',
+    
+    // Gift Section
+    digitalEnvelope: 'Digital Envelope',
+    yourBlessing: 'Your blessing is a very meaningful gift for us.',
+    
+    // Footer
+    madeWithLove: 'Made with 💛 for our special day',
   },
 };
 
