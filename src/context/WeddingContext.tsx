@@ -50,6 +50,17 @@ export interface SiteSettings {
   countdownEnabled: boolean;
 }
 
+export interface AdminCredentials {
+  username: string;
+  password: string;
+}
+
+export interface AdminContact {
+  phone: string;
+  name: string;
+  message: string;
+}
+
 interface WeddingContextType {
   weddingData: WeddingData;
   setWeddingData: (data: WeddingData) => void;
@@ -62,8 +73,10 @@ interface WeddingContextType {
   sendAllWhatsApp: () => void;
   siteSettings: SiteSettings;
   setSiteSettings: (settings: SiteSettings) => void;
-  adminPassword: string;
-  superAdminPassword: string;
+  adminCredentials: AdminCredentials;
+  superAdminCredentials: AdminCredentials;
+  adminContact: AdminContact;
+  setAdminContact: (contact: AdminContact) => void;
 }
 
 const defaultWeddingData: WeddingData = {
@@ -179,8 +192,29 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
     return saved ? JSON.parse(saved) : defaultSiteSettings;
   });
 
-  const adminPassword = 'admin123';
-  const superAdminPassword = 'superadmin123';
+  const adminCredentials: AdminCredentials = {
+    username: 'admin',
+    password: 'admin123',
+  };
+
+  const superAdminCredentials: AdminCredentials = {
+    username: 'superadmin',
+    password: 'super123',
+  };
+
+  const [adminContact, setAdminContact] = useState<AdminContact>(() => {
+    const saved = localStorage.getItem('adminContact');
+    return saved ? JSON.parse(saved) : {
+      phone: '6281234567890',
+      name: 'Admin Undangan',
+      message: 'Assalamu\'alaikum, saya ingin meminta akun untuk mengakses panel admin undangan pernikahan.',
+    };
+  });
+
+  const updateAdminContact = (contact: AdminContact) => {
+    setAdminContact(contact);
+    localStorage.setItem('adminContact', JSON.stringify(contact));
+  };
 
   // Save to localStorage
   const updateWeddingData = (data: WeddingData) => {
@@ -285,8 +319,10 @@ Wassalamu'alaikum Warahmatullahi Wabarakatuh
         sendAllWhatsApp,
         siteSettings,
         setSiteSettings: updateSiteSettings,
-        adminPassword,
-        superAdminPassword,
+        adminCredentials,
+        superAdminCredentials,
+        adminContact,
+        setAdminContact: updateAdminContact,
       }}
     >
       {children}
