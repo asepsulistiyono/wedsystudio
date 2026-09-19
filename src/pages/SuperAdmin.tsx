@@ -6,14 +6,15 @@ interface SuperAdminProps {
 }
 
 export default function SuperAdmin({ navigate }: SuperAdminProps) {
-  const { siteSettings, setSiteSettings, weddingData, guests, adminContact, setAdminContact, adminCredentials, superAdminCredentials, currentUser, logout, resetAdminPassword, deleteAdmin } = useWedding();
+  const { siteSettings, setSiteSettings, weddingData, guests, adminContact, setAdminContact, admins, superAdminCredentials, currentUser, logout, addAdmin, resetAdminPassword, deleteAdmin } = useWedding();
   const [editSettings, setEditSettings] = useState(siteSettings);
   const [isEditing, setIsEditing] = useState(false);
   const [editContact, setEditContact] = useState(adminContact);
   const [isEditingContact, setIsEditingContact] = useState(false);
   const [activeTab, setActiveTab] = useState<'settings' | 'users' | 'analytics' | 'system'>('settings');
-  const [showAdminPassword, setShowAdminPassword] = useState(false);
-  const [showSuperAdminPassword, setShowSuperAdminPassword] = useState(false);
+  const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
+  const [showAddAdminForm, setShowAddAdminForm] = useState(false);
+  const [newAdmin, setNewAdmin] = useState({ username: '', password: '', name: '' });
 
   const handleSave = () => {
     setSiteSettings(editSettings);
@@ -33,19 +34,35 @@ export default function SuperAdmin({ navigate }: SuperAdminProps) {
     navigate('/login');
   };
 
-  const handleResetAdminPassword = () => {
+  const handleResetAdminPassword = (id: string) => {
     if (confirm('Apakah Anda yakin ingin mereset password admin ke default (admin123)?')) {
-      resetAdminPassword();
+      resetAdminPassword(id);
       alert('Password admin berhasil direset ke: admin123');
     }
   };
 
-  const handleDeleteAdmin = () => {
-    if (confirm('⚠️ PERINGATAN: Menghapus admin akan membuat sistem tidak bisa diakses oleh admin lagi. Anda harus membuat admin baru melalui Super Admin. Apakah Anda yakin?')) {
+  const handleDeleteAdmin = (id: string) => {
+    if (confirm('⚠️ PERINGATAN: Menghapus admin akan membuat sistem tidak bisa diakses oleh admin lagi. Apakah Anda yakin?')) {
       if (confirm('Konfirmasi sekali lagi: Hapus akun admin?')) {
-        deleteAdmin();
-        alert('Akun admin berhasil dihapus. Silakan buat admin baru.');
+        deleteAdmin(id);
+        alert('Akun admin berhasil dihapus.');
       }
+    }
+  };
+
+  const handleAddAdmin = () => {
+    if (!newAdmin.username || !newAdmin.password || !newAdmin.name) {
+      alert('Semua field harus diisi!');
+      return;
+    }
+    
+    const result = addAdmin(newAdmin.username, newAdmin.password, newAdmin.name);
+    if (result.success) {
+      alert('Admin berhasil ditambahkan!');
+      setNewAdmin({ username: '', password: '', name: '' });
+      setShowAddAdminForm(false);
+    } else {
+      alert(result.message || 'Gagal menambahkan admin');
     }
   };
 
@@ -328,54 +345,71 @@ export default function SuperAdmin({ navigate }: SuperAdminProps) {
               </div>
 
               <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Informasi Login</h4>
-                <div className="space-y-3 text-sm">
-                  {/* Admin Account */}
-                  <div className="p-3 bg-white rounded-lg border border-gray-200">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="font-medium text-gray-700">👤 Admin</p>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setShowAdminPassword(!showAdminPassword)}
-                          className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
-                        >
-                          {showAdminPassword ? '🙈 Sembunyikan' : '👁️ Lihat'} Password
-                        </button>
-                        <button
-                          onClick={handleResetAdminPassword}
-                          className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 transition-colors"
-                        >
-                          🔄 Reset Password
-                        </button>
-                        <button
-                          onClick={handleDeleteAdmin}
-                          className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
-                        >
-                          🗑️ Hapus Admin
-                        </button>
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-sm font-medium text-gray-700">Daftar Admin ({admins.length})</h4>
+                  <button
+                    onClick={() => setShowAddAdminForm(!showAddAdminForm)}
+                    className="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                  >
+                    {showAddAdminForm ? '✖️ Batal' : '➕ Tambah Admin'}
+                  </button>
+                </div>
+
+                {/* Add Admin Form */}
+                {showAddAdminForm && (
+                  <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <h5 className="text-sm font-medium text-green-800 mb-3">Tambah Admin Baru</h5>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-xs text-gray-600 block mb-1">Nama Lengkap</label>
+                        <input
+                          type="text"
+                          value={newAdmin.name}
+                          onChange={(e) => setNewAdmin({ ...newAdmin, name: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-green-500"
+                          placeholder="Nama admin"
+                        />
                       </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-500">Username:</span>
-                      <code className="bg-gray-100 px-2 py-0.5 rounded text-gray-700">{adminCredentials.username}</code>
-                    </div>
-                    <div className="flex justify-between items-center mt-1">
-                      <span className="text-gray-500">Password:</span>
-                      <code className="bg-gray-100 px-2 py-0.5 rounded text-gray-700 font-mono">
-                        {showAdminPassword ? adminCredentials.password : '••••••••'}
-                      </code>
+                      <div>
+                        <label className="text-xs text-gray-600 block mb-1">Username</label>
+                        <input
+                          type="text"
+                          value={newAdmin.username}
+                          onChange={(e) => setNewAdmin({ ...newAdmin, username: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-green-500"
+                          placeholder="Username untuk login"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-600 block mb-1">Password</label>
+                        <input
+                          type="text"
+                          value={newAdmin.password}
+                          onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-green-500"
+                          placeholder="Password untuk login"
+                        />
+                      </div>
+                      <button
+                        onClick={handleAddAdmin}
+                        className="w-full px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
+                      >
+                        💾 Simpan Admin Baru
+                      </button>
                     </div>
                   </div>
+                )}
 
+                <div className="space-y-3 text-sm">
                   {/* Super Admin Account */}
-                  <div className="p-3 bg-white rounded-lg border border-gray-200">
+                  <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="font-medium text-gray-700">👑 Super Admin</p>
+                      <p className="font-medium text-purple-800">👑 Super Admin</p>
                       <button
-                        onClick={() => setShowSuperAdminPassword(!showSuperAdminPassword)}
+                        onClick={() => setShowPasswords({ ...showPasswords, 'superadmin': !showPasswords['superadmin'] })}
                         className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
                       >
-                        {showSuperAdminPassword ? '🙈 Sembunyikan' : '👁️ Lihat'} Password
+                        {showPasswords['superadmin'] ? '🙈 Sembunyikan' : '👁️ Lihat'} Password
                       </button>
                     </div>
                     <div className="flex justify-between items-center">
@@ -385,10 +419,58 @@ export default function SuperAdmin({ navigate }: SuperAdminProps) {
                     <div className="flex justify-between items-center mt-1">
                       <span className="text-gray-500">Password:</span>
                       <code className="bg-gray-100 px-2 py-0.5 rounded text-gray-700 font-mono">
-                        {showSuperAdminPassword ? superAdminCredentials.password : '••••••••'}
+                        {showPasswords['superadmin'] ? superAdminCredentials.password : '••••••••'}
                       </code>
                     </div>
                   </div>
+
+                  {/* Admin Accounts */}
+                  {admins.map((admin) => (
+                    <div key={admin.id} className="p-3 bg-white rounded-lg border border-gray-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <p className="font-medium text-gray-700">👤 {admin.name}</p>
+                          <p className="text-xs text-gray-500">Dibuat: {new Date(admin.createdAt).toLocaleDateString('id-ID')}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setShowPasswords({ ...showPasswords, [admin.id]: !showPasswords[admin.id] })}
+                            className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                          >
+                            {showPasswords[admin.id] ? '🙈' : '👁️'}
+                          </button>
+                          <button
+                            onClick={() => handleResetAdminPassword(admin.id)}
+                            className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 transition-colors"
+                          >
+                            🔄
+                          </button>
+                          <button
+                            onClick={() => handleDeleteAdmin(admin.id)}
+                            className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-500">Username:</span>
+                        <code className="bg-gray-100 px-2 py-0.5 rounded text-gray-700">{admin.username}</code>
+                      </div>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="text-gray-500">Password:</span>
+                        <code className="bg-gray-100 px-2 py-0.5 rounded text-gray-700 font-mono">
+                          {showPasswords[admin.id] ? admin.password : '••••••••'}
+                        </code>
+                      </div>
+                    </div>
+                  ))}
+
+                  {admins.length === 0 && (
+                    <div className="text-center py-4 text-gray-500">
+                      Belum ada admin. Klik "Tambah Admin" untuk membuat admin baru.
+                    </div>
+                  )}
                 </div>
               </div>
 
