@@ -1,15 +1,17 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import { useWedding } from '../context/WeddingContext';
 
-export default function SuperAdmin() {
+interface SuperAdminProps {
+  navigate: (path: string) => void;
+}
+
+export default function SuperAdmin({ navigate }: SuperAdminProps) {
   const { siteSettings, setSiteSettings, weddingData, guests, adminContact, setAdminContact, adminCredentials, superAdminCredentials } = useWedding();
   const [editSettings, setEditSettings] = useState(siteSettings);
   const [isEditing, setIsEditing] = useState(false);
   const [editContact, setEditContact] = useState(adminContact);
   const [isEditingContact, setIsEditingContact] = useState(false);
   const [activeTab, setActiveTab] = useState<'settings' | 'users' | 'analytics' | 'system'>('settings');
-  const navigate = useNavigate();
 
   const handleSave = () => {
     setSiteSettings(editSettings);

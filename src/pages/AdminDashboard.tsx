@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import { useWedding } from '../context/WeddingContext';
 
-export default function AdminDashboard() {
+interface AdminDashboardProps {
+  navigate: (path: string) => void;
+}
+
+export default function AdminDashboard({ navigate }: AdminDashboardProps) {
   const { weddingData, setWeddingData, guests, siteSettings } = useWedding();
   const [activeTab, setActiveTab] = useState<'overview' | 'couple' | 'event' | 'content'>('overview');
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(weddingData);
-  const navigate = useNavigate();
 
   const handleSave = () => {
     setWeddingData(editData);
