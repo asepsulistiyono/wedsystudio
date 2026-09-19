@@ -111,7 +111,19 @@ export const languageLabels: Record<string, string> = {
 
 // Fungsi untuk mendapatkan konten berdasarkan agama dan bahasa
 export function getReligiousContent(religion: string, language: string): ReligiousContent {
-  return religiousTemplates[religion]?.[language] || religiousTemplates['universal']['id'];
+  console.log('getReligiousContent called with:', { religion, language });
+  console.log('Available religions:', Object.keys(religiousTemplates));
+  console.log('Available languages for', religion, ':', Object.keys(religiousTemplates[religion] || {}));
+  
+  const content = religiousTemplates[religion]?.[language];
+  console.log('Content found:', content);
+  
+  if (!content) {
+    console.warn('Content not found, falling back to universal/id');
+    return religiousTemplates['universal']['id'];
+  }
+  
+  return content;
 }
 
 // Translations untuk UI
