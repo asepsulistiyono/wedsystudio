@@ -1,47 +1,35 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
 import { useWedding } from '../context/WeddingContext';
 
-export default function LoginPage() {
+interface LoginPageProps {
+  navigate: (path: string) => void;
+}
+
+export default function LoginPage({ navigate }: LoginPageProps) {
   const [role, setRole] = useState<'admin' | 'superadmin'>('admin');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const { adminContact } = useWedding();
-  const navigate = useNavigate();
 
-  // Hardcoded credentials for simplicity
-  const ADMIN_CREDENTIALS = {
-    username: 'admin',
-    password: 'admin123',
-  };
-
-  const SUPERADMIN_CREDENTIALS = {
-    username: 'superadmin',
-    password: 'super123',
-  };
+  const ADMIN_CREDENTIALS = { username: 'admin', password: 'admin123' };
+  const SUPERADMIN_CREDENTIALS = { username: 'superadmin', password: 'super123' };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
-    console.log('Login attempt:', { role, username, password });
-    
     if (role === 'admin') {
       if (username.trim() === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-        console.log('Admin login success');
         navigate('/admin');
       } else {
-        console.log('Admin login failed');
         setError('Username atau password salah!');
       }
     } else if (role === 'superadmin') {
       if (username.trim() === SUPERADMIN_CREDENTIALS.username && password === SUPERADMIN_CREDENTIALS.password) {
-        console.log('Superadmin login success');
         navigate('/superadmin');
       } else {
-        console.log('Superadmin login failed');
         setError('Username atau password salah!');
       }
     }
@@ -60,7 +48,6 @@ export default function LoginPage() {
         <div className="bg-white rounded-2xl p-8 shadow-2xl">
           <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Login</h2>
 
-          {/* Role Toggle */}
           <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
             <button
               type="button"
@@ -98,7 +85,6 @@ export default function LoginPage() {
                   className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#2d4a3e] transition-colors"
                   placeholder="Masukkan username"
                   required
-                  autoComplete="username"
                 />
               </div>
             </div>
@@ -118,12 +104,11 @@ export default function LoginPage() {
                   className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#2d4a3e] transition-colors"
                   placeholder="Masukkan password"
                   required
-                  autoComplete="current-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,7 +145,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Info Box */}
           <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 mt-0.5">
@@ -188,7 +172,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Demo Credentials */}
           <div className="mt-4 pt-4 border-t border-gray-100">
             <p className="text-xs text-gray-400 text-center mb-2">Demo Credentials:</p>
             <div className="text-xs text-gray-500 space-y-1">

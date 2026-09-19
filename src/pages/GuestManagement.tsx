@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useWedding, Guest } from '../context/WeddingContext';
 
-export default function GuestManagement() {
+interface GuestManagementProps {
+  navigate: (path: string) => void;
+}
+
+export default function GuestManagement({ navigate }: GuestManagementProps) {
   const { guests, addGuest, updateGuest, deleteGuest, sendWhatsApp, weddingData } = useWedding();
   const [showForm, setShowForm] = useState(false);
   const [editingGuest, setEditingGuest] = useState<Guest | null>(null);
