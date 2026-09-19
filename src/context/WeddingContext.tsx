@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { getReligiousContent } from '../utils/translations';
+import { syncReligiousContent } from '../utils/languageSync';
 
 // ============ TYPES ============
 export interface WeddingData {
@@ -218,12 +219,8 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
         const language = parsed.language || 'id';
         const religion = parsed.religion || 'islam';
         
-        // Get religious content based on language and religion
-        const religiousContent = getReligiousContent(religion, language);
-        
-        // Ensure all required fields exist with defaults
-        // Override quote, quoteSource, bismillah, closingText with template values
-        return { 
+        // Create base data
+        const baseData = { 
           ...defaultWeddingData, 
           ...parsed, 
           galleryPhotos: parsed.galleryPhotos || [],
@@ -231,12 +228,10 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
           religion: religion,
           groomPhoto: parsed.groomPhoto || '',
           bridePhoto: parsed.bridePhoto || '',
-          // Always use template values for religious content
-          bismillah: religiousContent.opening,
-          quote: religiousContent.quote,
-          quoteSource: religiousContent.quoteSource,
-          closingText: religiousContent.closing,
         };
+        
+        // Sync religious content based on current language and religion
+        return syncReligiousContent(baseData);
       }
     } catch (e) {
       console.error('Error parsing weddingData:', e);
@@ -384,15 +379,8 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
 
   // Save to localStorage
   const updateWeddingData = (data: WeddingData) => {
-    // Always update religious content based on current language and religion
-    const religiousContent = getReligiousContent(data.religion, data.language);
-    const updatedData = {
-      ...data,
-      bismillah: religiousContent.opening,
-      quote: religiousContent.quote,
-      quoteSource: religiousContent.quoteSource,
-      closingText: religiousContent.closing,
-    };
+    // Use syncReligiousContent to ensure all religious texts are updated
+    const updatedData = syncReligiousContent(data);
     
     setWeddingData(updatedData);
     localStorage.setItem('weddingData', JSON.stringify(updatedData));
