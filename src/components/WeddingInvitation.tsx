@@ -572,12 +572,42 @@ function FooterSection() {
           <p className="font-elegant text-white/40 text-sm">
             Made with 💛 for our special day
           </p>
-          <Link to="/login" className="inline-block mt-4 text-xs text-white/30 hover:text-white/50 transition-colors">
-            Admin Panel →
-          </Link>
+          <div className="mt-6 flex flex-col items-center gap-3">
+            <Link 
+              to="/login" 
+              className="inline-flex items-center gap-2 px-6 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-xs text-white/70 hover:text-white transition-all"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+              </svg>
+              Admin Panel
+            </Link>
+            <p className="text-xs text-white/30">
+              Atau akses langsung: <a href="#/login" className="text-[#c9a96e] hover:underline">#/login</a>
+            </p>
+          </div>
         </div>
       </div>
     </section>
+  );
+}
+
+// ============ ADMIN FLOATING BUTTON ============
+function AdminFloatingButton() {
+  return (
+    <div className="fixed bottom-6 right-6 z-50">
+      <Link
+        to="/login"
+        className="flex items-center gap-2 px-4 py-2 bg-[#2d4a3e] hover:bg-[#1a3a2e] text-white rounded-full shadow-lg transition-all hover:scale-105"
+        title="Admin Panel"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span className="text-sm font-medium hidden md:inline">Admin</span>
+      </Link>
+    </div>
   );
 }
 
@@ -591,7 +621,12 @@ export default function WeddingInvitation() {
   };
 
   if (!isOpen) {
-    return <CoverSection onOpen={handleOpen} />;
+    return (
+      <>
+        <CoverSection onOpen={handleOpen} />
+        <AdminFloatingButton />
+      </>
+    );
   }
 
   return (
@@ -605,6 +640,7 @@ export default function WeddingInvitation() {
       <RSVPSection />
       <GiftSection />
       <FooterSection />
+      <AdminFloatingButton />
     </div>
   );
 }
