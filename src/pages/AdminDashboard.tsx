@@ -278,6 +278,36 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
               {/* Mempelai Pria */}
               <div className="space-y-4">
                 <h4 className="font-medium text-[#2d4a3e] text-lg border-b border-gray-100 pb-2">Mempelai Pria</h4>
+                
+                {/* Upload Foto Mempelai Pria */}
+                <div>
+                  <label className="text-sm text-gray-600 block mb-2">Foto Mempelai</label>
+                  <div className="flex items-center gap-4">
+                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-[#c9a96e] bg-gray-100 flex items-center justify-center">
+                      {weddingData.groomPhoto ? (
+                        <img src={weddingData.groomPhoto} alt="Groom" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-3xl text-gray-400">{weddingData.groomInitial}</span>
+                      )}
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = () => {
+                            setWeddingData({ ...weddingData, groomPhoto: reader.result as string });
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2d4a3e] file:text-white hover:file:bg-[#1a3a2e] file:cursor-pointer"
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <label className="text-sm text-gray-600 block mb-1">Nama Lengkap</label>
                   {isEditing ? (
@@ -336,6 +366,36 @@ export default function AdminDashboard({ navigate }: AdminDashboardProps) {
               {/* Mempelai Wanita */}
               <div className="space-y-4">
                 <h4 className="font-medium text-[#2d4a3e] text-lg border-b border-gray-100 pb-2">Mempelai Wanita</h4>
+                
+                {/* Upload Foto Mempelai Wanita */}
+                <div>
+                  <label className="text-sm text-gray-600 block mb-2">Foto Mempelai</label>
+                  <div className="flex items-center gap-4">
+                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-[#c9a96e] bg-gray-100 flex items-center justify-center">
+                      {weddingData.bridePhoto ? (
+                        <img src={weddingData.bridePhoto} alt="Bride" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-3xl text-gray-400">{weddingData.brideInitial}</span>
+                      )}
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = () => {
+                            setWeddingData({ ...weddingData, bridePhoto: reader.result as string });
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2d4a3e] file:text-white hover:file:bg-[#1a3a2e] file:cursor-pointer"
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <label className="text-sm text-gray-600 block mb-1">Nama Lengkap</label>
                   {isEditing ? (
