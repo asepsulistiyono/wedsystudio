@@ -204,9 +204,9 @@ export default function LoginPage() {
           </div>
 
           <div className="mt-4 text-center">
-            <Link to="/" className="text-sm text-gray-500 hover:text-[#2d4a3e] transition-colors">
+            <a href="#/" className="text-sm text-gray-500 hover:text-[#2d4a3e] transition-colors">
               ← Kembali ke Undangan
-            </Link>
+            </a>
           </div>
         </div>
       </div>
