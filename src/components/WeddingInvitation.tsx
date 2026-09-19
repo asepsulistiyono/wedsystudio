@@ -591,51 +591,6 @@ function FooterSection() {
   );
 }
 
-// ============ LANGUAGE & RELIGION SELECTOR ============
-function LanguageReligionSelector() {
-  const { weddingData, setWeddingData } = useWedding();
-
-  return (
-    <div className="fixed top-4 left-4 z-50 flex flex-col gap-2">
-      {/* Language Toggle */}
-      <div className="bg-white/90 backdrop-blur-md rounded-full px-3 py-1.5 shadow-lg border border-[#c9a96e]/20 flex items-center gap-1">
-        <button
-          onClick={() => setWeddingData({ ...weddingData, language: 'id' })}
-          className={`px-2 py-1 rounded-full text-xs font-medium transition-all ${
-            weddingData.language === 'id' ? 'bg-[#2d4a3e] text-white' : 'text-gray-500 hover:text-[#2d4a3e]'
-          }`}
-        >
-          ID
-        </button>
-        <button
-          onClick={() => setWeddingData({ ...weddingData, language: 'en' })}
-          className={`px-2 py-1 rounded-full text-xs font-medium transition-all ${
-            weddingData.language === 'en' ? 'bg-[#2d4a3e] text-white' : 'text-gray-500 hover:text-[#2d4a3e]'
-          }`}
-        >
-          EN
-        </button>
-      </div>
-
-      {/* Religion Selector */}
-      <div className="bg-white/90 backdrop-blur-md rounded-full px-3 py-1.5 shadow-lg border border-[#c9a96e]/20">
-        <select
-          value={weddingData.religion}
-          onChange={(e) => setWeddingData({ ...weddingData, religion: e.target.value as any })}
-          className="text-xs bg-transparent border-none focus:outline-none cursor-pointer text-gray-600 font-medium"
-        >
-          <option value="islam">☪ Islam</option>
-          <option value="kristen">✝ Kristen</option>
-          <option value="hindu">🕉 Hindu</option>
-          <option value="buddha">☸ Buddha</option>
-          <option value="konghucu">☯ Konghucu</option>
-          <option value="universal">♾ Universal</option>
-        </select>
-      </div>
-    </div>
-  );
-}
-
 // ============ MAIN COMPONENT ============
 export default function WeddingInvitation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -646,17 +601,11 @@ export default function WeddingInvitation() {
   };
 
   if (!isOpen) {
-    return (
-      <>
-        <CoverSection onOpen={handleOpen} />
-        <LanguageReligionSelector />
-      </>
-    );
+    return <CoverSection onOpen={handleOpen} />;
   }
 
   return (
     <div className="animate-fade-in">
-      <LanguageReligionSelector />
       <HeroSection />
       <CoupleSection />
       <CountdownSection />
